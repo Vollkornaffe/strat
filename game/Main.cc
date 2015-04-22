@@ -155,11 +155,6 @@ int main(int argc, char *argv[]) {
         std::stringstream ss;
         ss << "Strats (" << fps << " FPS, " << "): ";
 
-        auto player = simState.getPlayer(client.getPlayerId());
-
-        for (size_t i = 0; i < RESOURCE_MAX; i++)
-            ss << player.getResources()[i] << " ";
-
         glfwSetWindowTitle(window, ss.str().c_str());
     } 
 
