@@ -144,11 +144,6 @@ int main(int argc, char *argv[]) {
             }
 
             {
-                PROFILE(cursor);
-                drawCursor(map, input);
-            }
-
-            {
                 PROFILE(swap);
                 glfwSwapBuffers(window);
             }
@@ -164,11 +159,7 @@ int main(int argc, char *argv[]) {
         }
 
         std::stringstream ss;
-        ss << "Strats (" << fps << " FPS, "
-                         << "x=" << static_cast<int>(input.getCursor().x) << ", "
-                         << "y=" << static_cast<int>(input.getCursor().y) << ", "
-                         << "z=" << static_cast<int>(map.point(input.getCursor()).height)
-                         << "): ";
+        ss << "Strats (" << fps << " FPS, " << "): ";
 
         auto player = simState.getPlayer(client.getPlayerId());
 

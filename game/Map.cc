@@ -202,10 +202,6 @@ void Map::waterTick(Fixed tickLengthS, size_t waterLevel) {
 
                     p.water -= value * Fixed(6) / Fixed(8);
                     p2.water += value;
-                    
-                    // Don't allow flooding above the global water level
-                    if (p2.water > Fixed(waterLevel - p2.height))
-                        p2.water = Fixed(waterLevel - p2.height);
                 });
             }
 

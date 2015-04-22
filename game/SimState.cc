@@ -12,36 +12,11 @@ PlayerState::PlayerState(const PlayerInfo &info)
 
 SimState::SimState(const GameSettings &settings)
     : settings(settings),
-      map(Map::generate(settings.mapW, settings.mapH,
-                        settings.heightLimit,
-                        settings.randomSeed)),
+      map(settings.mapW, settings.mapH),
       players(playersFromSettings(settings)),
       entityCounter(0),
       time(0),
       waterLevel(0) {
-    // Place random spawn points for now...
-    for (auto &player : settings.players) {
-        size_t x, y;
-        do {
-            x = rand() % settings.mapW;
-            y = rand() % settings.mapH;
-        } while (!canPlaceBuilding(BUILDING_MAIN, glm::uvec2(x, y)));
-
-        addBuilding(player.id, BUILDING_MAIN, glm::uvec2(x, y), true);
-    }
-
-    // Generate some trees
-    size_t numTrees = 20;
-
-    for (size_t i = 0; i < numTrees; i++) {
-        size_t x, y;
-        do {
-            x = rand() % settings.mapW;
-            y = rand() % settings.mapH;
-        } while (!map.point(x, y).usable());
-
-        placeTree(Map::Pos(x, y));
-    }
 }
 
 bool SimState::canPlaceBuilding(BuildingType type, const glm::uvec2 &p) const {

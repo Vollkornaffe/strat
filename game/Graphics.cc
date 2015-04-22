@@ -134,28 +134,6 @@ void RenderBuildingSystem::render(entityx::EntityManager &entities) {
         glEnd();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glPopMatrix();
-
-        // Selection circle around building
-        if (auto mode = boost::get<Input::BuildingSelectedMode>(&input.getMode())) {
-            if (mode->isSelected(entity)) {
-                glPushMatrix();
-                vec3 center = position + size / 2.0f;
-                float radius = sqrt((size.x * size.x) + (size.y * size.y)) * 0.6f;
-
-                glTranslatef(center.x, center.y, center.z);
-
-                glBegin(GL_LINE_LOOP);
-                glColor3f(0.0f, 0.0f, 1.0f);
-
-                for (float i = 0.0f; i < 2*M_PI; i += 2*M_PI / 360) {
-                    glVertex3f(cos(i) * radius, sin(i) * radius, 0.0f);
-                }
-
-                glEnd();
-
-                glPopMatrix();
-            }
-        }
     }
 
     glEnable(GL_CULL_FACE);
@@ -372,64 +350,4 @@ void setupGraphics(const Config &config, const Input::View &view) {
     glEnable(GL_BLEND);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-}
-
-void drawCursor(const Map &map, const Input &input) {
-    glDisable(GL_CULL_FACE);
-
-    float dz = 0.01;
-    float tx = input.getCursor().x;
-    float ty = input.getCursor().y;
-    float tz = map.point(input.getCursor()).height + dz;
-
-    float s = 0.2f;
-
-    match(input.getMode(),
-        [&] (const Input::DefaultMode &) {
-            glBegin(GL_QUADS);
-            glColor4f(1.0f, 0.0f, 1.0f, 0.5f);
-            glVertex3f(tx - s, ty - s, tz);
-            glVertex3f(tx + s, ty - s, tz);
-            glVertex3f(tx + s, ty + s, tz);
-            glVertex3f(tx - s, ty + s, tz);
-            glEnd();
-        },
-
-        [&] (const Input::BuildingSelectedMode &) {
-            glBegin(GL_QUADS);
-            glColor4f(1.0f, 0.0f, 1.0f, 0.5f);
-            glVertex3f(tx - s, ty - s, tz);
-            glVertex3f(tx + s, ty - s, tz);
-            glVertex3f(tx + s, ty + s, tz);
-            glVertex3f(tx - s, ty + s, tz);
-            glEnd();
-        },
-
-        [&] (const Input::MapSelectionMode &mode) {
-            Map::Pos a(mode.start), b(input.getCursor());
-
-            glBegin(GL_LINE_STRIP);
-            glColor4f(1.0, 1.0, 1.0, 0.9f);
-            for (size_t x = std::min(a.x, b.x); x <= std::max(a.x, b.x); x++) {
-                glVertex3f(x, a.y, map.point(x, a.y).height + dz);
-            }
-            glEnd();
-            glBegin(GL_LINE_STRIP);
-            for (size_t x = std::min(a.x, b.x); x <= std::max(a.x, b.x); x++) {
-                glVertex3f(x, b.y, map.point(x, b.y).height + dz);
-            }
-            glEnd();
-            glBegin(GL_LINE_STRIP);
-            for (size_t y = std::min(a.y, b.y); y <= std::max(a.y, b.y); y++) {
-                glVertex3f(a.x, y, map.point(a.x, y).height + dz);
-            }
-            glEnd();
-            glBegin(GL_LINE_STRIP);
-            for (size_t y = std::min(a.y, b.y); y <= std::max(a.y, b.y); y++) {
-                glVertex3f(b.x, y, map.point(b.x, y).height + dz);
-            }
-            glEnd();
-        });
-
-    glEnable(GL_CULL_FACE);
 }

@@ -37,7 +37,7 @@ struct GridPoint {
           growthCascadeDown(false),
           entity(),
           waterSource(false),
-          water(0) {
+          water(10) {
     }
 
     bool usable() const {

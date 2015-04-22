@@ -66,6 +66,5 @@ private:
 };
 
 void setupGraphics(const Config &, const Input::View &);
-void drawCursor(const Map &, const Input &);
 
 #endif
