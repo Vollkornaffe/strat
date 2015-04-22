@@ -89,214 +89,25 @@ void printOglError(const char *file, int line) {
     }
 }
 
-void renderResource(ResourceType type, const glm::vec3 &pos) {
-    vec3 c(0.7, 0.7, 0.7);
-
-    glPushMatrix();
-    glTranslatef(pos.x, pos.y, pos.z);
-    //glTranslatef(-0.5f, -0.5f, 0.0f);
-
-    glBegin(GL_QUADS);
-    glColor4f(c.x, c.y, c.z, 1.0f);
-    drawCube();
-    glEnd();
-
-    glPopMatrix();
-}
-
-void RenderBuildingSystem::render(entityx::EntityManager &entities) {
+void RenderShipSystem::render(entityx::EntityManager &entities) {
     glDisable(GL_CULL_FACE);
 
     GameObject::Handle gameObject;
-    Building::Handle building;
+    Ship::Handle ship;
+    Position::Handle position;
     for (entityx::Entity entity :
-         entities.entities_with_components(gameObject, building)) {
-        vec3 position(building->getPosition()),
-             size(building->getTypeInfo().size);
-
-
+         entities.entities_with_components(gameObject, ship, position)) {
         assert(gameObject->getOwner() > 0 && gameObject->getOwner()-1 < 4);
         vec3 color(playerColors[gameObject->getOwner()-1]); //TODO
 
-        renderBuilding(building->getType(),
-                       building->getPosition(),
-                       building->getBlocks());                       
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-        // Colored border around building
         glPushMatrix();
-        glTranslatef(position.x, position.y, position.z);
-        glScalef(size.x, size.y, size.z);
-        glBegin(GL_QUADS);
+        glTranslatef(position->position.x, position->position.y, position->position.z);
+        glScalef(3.0, 1.0, 1.0);
         glColor4f(color.x, color.y, color.z, 1.0f);
+
         drawCube();
-        glEnd();
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glPopMatrix();
-    }
-
-    glEnable(GL_CULL_FACE);
-}
-
-void RenderBuildingSystem::renderBuilding(BuildingType type, const glm::uvec3 &pos,
-                                          const std::vector<BuildingTypeInfo::Block> &blocks) {
-    glPushMatrix();
-    glTranslatef(pos.x, pos.y, pos.z);
     
-    for (const auto &block : blocks) {
-        renderResource(block.resource, glm::vec3(block.pos));
-    }
-
-    glPopMatrix();
-}
-
-void RenderFlyingResourceSystem::render(entityx::EntityManager &entities) {
-    glDisable(GL_CULL_FACE);
-
-    FlyingObject::Handle flyingObject;
-    FlyingResource::Handle resource;
-    for (auto entity :
-         entities.entities_with_components(flyingObject, resource)) {
-        float ta = flyingObject->getLastProgress().toFloat();
-        float tb = flyingObject->getProgress().toFloat();
-        float t = lerp<float>(ta, tb, interp.getT());
-
-        vec3 p(bezier(vec3(flyingObject->fromPosition),
-                           vec3(flyingObject->toPosition),
-                           flyingObject->distance.toFloat() * 0.5f,
-                           t));
-        vec3 c(resource->color);
-
-        glPushMatrix();
-        glTranslatef(p.x, p.y, p.z);
-        glTranslatef(-0.5f, -0.5f, 0.0f);
-
-        glBegin(GL_QUADS);
-        glColor4f(c.x, c.y, c.z, 1.0f);
-        drawCube();
-        glEnd();
-
         glPopMatrix();
-    }
-
-    // tmp
-    FlyingBlock::Handle flyingBlock;
-    for (auto entity :
-         entities.entities_with_components(flyingObject, flyingBlock)) {
-        float ta = flyingObject->getLastProgress().toFloat();
-        float tb = flyingObject->getProgress().toFloat();
-        float t = lerp<float>(ta, tb, interp.getT());
-
-        vec3 p(bezier(vec3(flyingObject->fromPosition),
-                           vec3(flyingObject->toPosition),
-                           flyingObject->distance.toFloat() * 0.5f,
-                           t));
-        vec3 c(0.7, 0.7, 0.7);
-
-        glPushMatrix();
-        glTranslatef(p.x, p.y, p.z);
-        //glTranslatef(-0.5f, -0.5f, 0.0f);
-
-        glBegin(GL_QUADS);
-        glColor4f(c.x, c.y, c.z, 1.0f);
-        drawCube();
-        glEnd();
-
-        glPopMatrix();
-    }
-
-    glEnable(GL_CULL_FACE);
-}
-
-void RenderRocketSystem::render(entityx::EntityManager &entities) {
-    glDisable(GL_CULL_FACE);
-
-    FlyingObject::Handle flyingObject;
-    Rocket::Handle rocket;
-    for (auto entity : entities.entities_with_components(flyingObject, rocket)) {
-        float ta = flyingObject->getLastProgress().toFloat();
-        float tb = flyingObject->getProgress().toFloat();
-        float t = lerp<float>(ta, tb, interp.getT());
-
-        vec3 p(bezier(vec3(flyingObject->fromPosition),
-                           vec3(flyingObject->toPosition),
-                           flyingObject->distance.toFloat() * 0.25f,
-                           t));
-        vec3 p2(bezier(vec3(flyingObject->fromPosition),
-                            vec3(flyingObject->toPosition),
-                            flyingObject->distance.toFloat() * 0.25f,
-                            t + 0.001f));
-        vec3 c(1.0f, 0.0f, 0.0f);
-
-        // Rotate rockets to tangent
-        vec3 d(normalize(p2 - p));
-        vec3 x1(d);
-        vec3 x2(normalize(cross(x1, vec3(0, 0, 1))));
-        vec3 x3(normalize(cross(x1, x2)));
-
-        mat4 rot(vec4(x1, 0), vec4(x2, 0), vec4(x3, 0), vec4(0, 0, 0, 1));
-
-        glPushMatrix();
-        glTranslatef(p.x, p.y, p.z);
-        glTranslatef(-0.5f, -0.5f, 0.0f);
-        glMultMatrixf(value_ptr(rot));
-        glScalef(1.0f, 0.3f, 0.3f);
-
-        glBegin(GL_QUADS);
-        glColor4f(c.x, c.y, c.z, 1.0f);
-        drawCube();
-        glEnd();
-
-        glPopMatrix();
-    }
-
-    glEnable(GL_CULL_FACE);
-}
-
-void RenderTreeSystem::render(entityx::EntityManager &entities) {
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-    for (auto &part : treeObj.parts) {
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnableClientState(GL_NORMAL_ARRAY);
-
-        assert(part.material.texture);
-        part.material.texture->bind();
-
-        part.vertices->bind();
-        glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*3, nullptr);
-
-        part.texCoords->bind();
-        glTexCoordPointer(2, GL_FLOAT, sizeof(GLfloat)*2, nullptr);
-
-        part.normals->bind();
-        glNormalPointer(GL_FLOAT, sizeof(GLfloat)*3, nullptr);
-
-        //std::cout << treeObj.parts[0].vertices->getNumElements() << std::endl;
-
-        Tree::Handle tree;
-        for (auto entity : entities.entities_with_components(tree)) {
-            vec3 p(tree->getPosition());
-
-            glPushMatrix();
-            glTranslatef(p.x, p.y, p.z);
-            glScalef(0.35, 0.35, 0.35);
-            glRotatef(90, 1, 0, 0);
-            glDrawArrays(GL_TRIANGLES, 0, part.vertices->getNumElements());
-            glPopMatrix();
-        }
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glDisableClientState(GL_NORMAL_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     glEnable(GL_CULL_FACE);

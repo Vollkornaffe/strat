@@ -78,10 +78,7 @@ int main(int argc, char *argv[]) {
     Input input(config, window, client, sim.getEvents(), terrainMesh);
     const Input::View &view(input.getView());
 
-    RenderBuildingSystem renderBuildingSystem(map, input);
-    RenderFlyingResourceSystem renderFlyingResourceSystem(map, interp);
-    RenderRocketSystem renderRocketSystem(interp);
-    RenderTreeSystem renderTreeSystem(map, textures);
+    RenderShipSystem renderShipSystem(map, input);
 
     size_t frames = 0, fps = 0;
     double lastFrameTime = glfwGetTime();
@@ -137,10 +134,7 @@ int main(int argc, char *argv[]) {
         
             {
                 PROFILE(objects);
-                renderBuildingSystem.render(sim.getEntities());
-                renderFlyingResourceSystem.render(sim.getEntities());
-                renderRocketSystem.render(sim.getEntities());
-                renderTreeSystem.render(sim.getEntities());
+                renderShipSystem.render(sim.getEntities());
             }
 
             {

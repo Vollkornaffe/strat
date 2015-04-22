@@ -164,7 +164,7 @@ void Input::tryScroll(const vec2 &delta) {
 
 entityx::Entity Input::pickEntity() {
     entityx::Entity minEntity;
-    float minD = 0.0f;
+    /*float minD = 0.0f;
 
     GameObject::Handle gameObject;
     Building::Handle building;
@@ -177,7 +177,7 @@ entityx::Entity Input::pickEntity() {
             && (!minEntity || d < minD)) {
             minEntity = entity;
         }
-    }
+    }*/
 
     return minEntity;
 }

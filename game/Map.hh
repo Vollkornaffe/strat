@@ -132,8 +132,7 @@ struct Map {
 
     void tick(entityx::EntityManager &, Fixed tickLengthS);
 
-    void raiseWaterLevel(size_t waterLevel);
-    void waterTick(Fixed tickLengthS, size_t waterLevel);
+    void waterTick(Fixed tickLengthS);
 
 private:
     size_t sizeX;

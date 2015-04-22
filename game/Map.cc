@@ -168,18 +168,7 @@ void Map::tick(entityx::EntityManager &entities, Fixed tickLengthS) {
     }
 }
 
-void Map::raiseWaterLevel(size_t waterLevel) {
-    for (size_t x = 0; x < getSizeX(); x++) {
-        for (size_t y = 0; y < getSizeY(); y++) {
-            GridPoint &p(point(x, y));
-
-            if (p.height == 0 && waterLevel > 0)
-                p.waterSource = true;
-        }
-    }
-}
-
-void Map::waterTick(Fixed tickLengthS, size_t waterLevel) {
+void Map::waterTick(Fixed tickLengthS) {
     Fixed flowPerS(Fixed(2) / Fixed(1));
 
     // Calculate water flow from grid point to grid point
@@ -203,14 +192,6 @@ void Map::waterTick(Fixed tickLengthS, size_t waterLevel) {
                     p.water -= value * Fixed(6) / Fixed(8);
                     p2.water += value;
                 });
-            }
-
-            if (p.waterSource
-                && p.height < waterLevel
-                && p.water < Fixed(waterLevel - p.height)) {
-                p.water += Fixed(4) * tickLengthS;
-                if (p.water > Fixed(waterLevel - p.height))
-                    p.water = Fixed(waterLevel - p.height);
             }
         }
     }

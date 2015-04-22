@@ -30,4 +30,8 @@ struct Ship : entityx::Component<Ship> {
     
 };
 
+struct Position : entityx::Component<Position> {
+    fvec3 position;
+};
+
 #endif
