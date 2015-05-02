@@ -3,6 +3,7 @@
 
 #include "Math.hh"
 #include "Map.hh"
+#include "Water.hh"
 
 #include <GL/glew.h>
 
@@ -10,7 +11,7 @@ struct TerrainPatch;
 
 // Draws the map
 struct TerrainMesh {
-    TerrainMesh(const Map &, const Map::Pos &patchSize);
+    TerrainMesh(const Map &, const Water &water, const Map::Pos &patchSize);
     ~TerrainMesh();
 
     void update();
@@ -25,6 +26,7 @@ private:
     glm::vec3 color(size_t height);
 
     const Map &map;
+    const Water &water;
 
     std::vector<TerrainPatch *> patches;
 };

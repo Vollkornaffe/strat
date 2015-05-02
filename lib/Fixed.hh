@@ -47,7 +47,7 @@ public:
     /*Fixed(float a) : g( int(a / (float)STEP()) ) {}
     Fixed(double a) : g( int(a / (double)STEP()) ) {}*/
     explicit Fixed(int a) : g( a << BP ) {}
-    explicit Fixed(size_t s) : Fixed((int)s) {}
+    //explicit Fixed(size_t s) : Fixed((int)s) {}
     Fixed& operator =(const Fixed& a) { g= a.g; return *this; }
     /*Fixed& operator =(float a) { g= Fixed(a).g; return *this; }
     Fixed& operator =(double a) { g= Fixed(a).g; return *this; }*/

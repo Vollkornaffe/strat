@@ -55,8 +55,11 @@ Input::Input(const Config &config, GLFWwindow *window, Client &client,
     /*view.target.x = map.getSizeX() / 2;
     view.target.y = map.getSizeY() / 2;*/
     //auto mainEnt = findMainBuilding();
-    view.target = vec3(50, 50, 50); //mainEnt.component<Building>()->getPosition();
-    vec3 origin_camera(0, -10.0f, view.distance);
+    view.target = vec3(50, 50, 0); //mainEnt.component<Building>()->getPosition();
+    const GridPoint &gp(map.point(view.target.x, view.target.y));
+    view.target.z = gp.height + sim.getState().getWater().point(view.target.x, view.target.y).height;
+
+    vec3 origin_camera(0, -40.0f, view.distance);
     view.position = view.target + rotateZ(origin_camera, view.angle);
 
     assert(!g_input);
@@ -146,7 +149,7 @@ void Input::scrollView(double dt) {
     else
         view.position.z += map.point(view.target.x, view.target.y).height;
 
-    vec3 origin_camera(0, -10.0f, view.distance);
+    vec3 origin_camera(0, -40.0f, view.distance);
     view.position = view.target + rotateZ(origin_camera, view.angle);
 }
 
@@ -159,7 +162,7 @@ void Input::tryScroll(const vec2 &delta) {
     if (view.target.y >= map.getSizeY()) view.target.y = map.getSizeY() - 1;
 
     const GridPoint &gp(map.point(view.target.x, view.target.y));
-    view.target.z = gp.height + gp.water;
+    view.target.z = gp.height + sim.getState().getWater().point(view.target.x, view.target.y).height;
 }
 
 entityx::Entity Input::pickEntity() {
@@ -203,6 +206,30 @@ void Input::onKey(GLFWwindow *window, int key, int, int action, int mods) {
     if (Input *self = g_input) {
         match(self->mode,
             [&](const DefaultMode &) {
+                if (action == GLFW_PRESS && key == GLFW_KEY_UP) {
+                    Order order(Order::ACCELERATE);
+                    order.accelerate.direction = DIRECTION_FORWARD;
+
+                    self->client.order(order);
+                }
+                if (action == GLFW_PRESS && key == GLFW_KEY_DOWN) {
+                    Order order(Order::ACCELERATE);
+                    order.accelerate.direction = DIRECTION_BACKWARD;
+
+                    self->client.order(order);
+                }
+                if (action == GLFW_PRESS && key == GLFW_KEY_LEFT) {
+                    Order order(Order::ACCELERATE);
+                    order.accelerate.direction = DIRECTION_LEFT;
+
+                    self->client.order(order);
+                }
+                if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT) {
+                    Order order(Order::ACCELERATE);
+                    order.accelerate.direction = DIRECTION_RIGHT;
+
+                    self->client.order(order);
+                }
             });
     }
 }

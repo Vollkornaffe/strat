@@ -70,10 +70,11 @@ int main(int argc, char *argv[]) {
     Sim &sim(client.getSim());
     const SimState &simState(sim.getState());
     const Map &map(simState.getMap());
+    const Water &water(simState.getWater());
     const InterpState &interp(client.getInterp());
 
     opengl::TextureManager textures;
-    TerrainMesh terrainMesh(map, Map::Pos(32, 32));
+    TerrainMesh terrainMesh(map, water, Map::Pos(32, 32));
 
     Input input(config, window, client, sim.getEvents(), terrainMesh);
     const Input::View &view(input.getView());

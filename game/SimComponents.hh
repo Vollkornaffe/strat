@@ -27,11 +27,15 @@ private:
 };
 
 struct Ship : entityx::Component<Ship> {
-    
-};
-
-struct Position : entityx::Component<Position> {
     fvec3 position;
+    fquat orientation;
+
+    fquat velocity;
+    fquat angularVelocity;
+
+    Ship(fvec3 position)
+        : position(position) {
+    }
 };
 
 #endif

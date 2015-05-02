@@ -6,16 +6,17 @@
 struct BitStreamReader;
 struct BitStreamWriter;
 
+enum Direction {
+    DIRECTION_LEFT,
+    DIRECTION_RIGHT,
+    DIRECTION_FORWARD,
+    DIRECTION_BACKWARD
+};
+
 struct Order {
     enum Type {
         UNDEFINED,
-
-        BUILD,
-        CONSTRUCT,
-        ATTACK,
-        STOP,
-        REMOVE,
-        RAISE_MAP,
+        ACCELERATE
     } type;
 
     Order(Type type = UNDEFINED)
@@ -26,32 +27,8 @@ struct Order {
 
     union {
         struct {
-            ObjectId objectId;
-            BuildingType type;
-            uint16_t x, y;
-        } build;
-
-        struct {
-            uint16_t queue;
-            ObjectId from, to;
-        } construct;
-
-        struct {
-            ObjectId objectId;
-            uint16_t x, y;
-        } attack;
-
-        struct {
-            ObjectId objectId;
-        } stop;
-
-        struct { 
-            ObjectId objectId;
-        } remove;
-
-        struct {
-            uint16_t x, y, w, h;
-        } raiseMap;
+            Direction direction;
+        } accelerate;
     };
 };
 

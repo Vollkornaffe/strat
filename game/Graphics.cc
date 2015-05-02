@@ -94,18 +94,19 @@ void RenderShipSystem::render(entityx::EntityManager &entities) {
 
     GameObject::Handle gameObject;
     Ship::Handle ship;
-    Position::Handle position;
     for (entityx::Entity entity :
-         entities.entities_with_components(gameObject, ship, position)) {
+         entities.entities_with_components(gameObject, ship)) {
         assert(gameObject->getOwner() > 0 && gameObject->getOwner()-1 < 4);
         vec3 color(playerColors[gameObject->getOwner()-1]); //TODO
 
         glPushMatrix();
-        glTranslatef(position->position.x, position->position.y, position->position.z);
-        glScalef(3.0, 1.0, 1.0);
+        glTranslatef(ship->position.x, ship->position.y, ship->position.z);
+        glScalef(5.0, 5.0, 5.0);
         glColor4f(color.x, color.y, color.z, 1.0f);
 
+        glBegin(GL_QUADS);
         drawCube();
+        glEnd();
     
         glPopMatrix();
     }

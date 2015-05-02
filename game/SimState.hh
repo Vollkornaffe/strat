@@ -2,6 +2,8 @@
 #define STRAT_GAME_SIM_STATE_HH
 
 #include "Map.hh"
+#include "Water.hh"
+#include "SimSystems.hh"
 #include "common/GameSettings.hh"
 #include "common/Order.hh"
 
@@ -13,6 +15,8 @@ using entityx::Entity;
 
 struct PlayerState {
     PlayerState(const PlayerInfo &info);
+
+    Entity ship;
 
 private:
     const PlayerInfo &info;
@@ -36,6 +40,9 @@ struct SimState : entityx::EntityX {
     Map &getMap() { return map; }
     const Map &getMap() const { return map; }
 
+    Water &getWater() { return water; }
+    const Water &getWater() const { return water; }
+
     PlayerState &getPlayer(PlayerId);
     const PlayerState &getPlayer(PlayerId) const;
 
@@ -52,15 +59,20 @@ struct SimState : entityx::EntityX {
     void tick();
 
 private:
-    const GameSettings &settings;
-    Map map;
-    
     typedef std::map<PlayerId, PlayerState> PlayerMap;
+
+    const GameSettings &settings;
+
+    Map map;
+    Water water;
+    
     PlayerMap players;
 
     size_t entityCounter;
 
     Fixed time;
+
+    ShipSystem shipSystem;
 
     static PlayerMap playersFromSettings(const GameSettings &);
 };

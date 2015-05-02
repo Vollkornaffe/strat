@@ -16,36 +16,9 @@ struct GridPoint {
 
     mutable bool dirty;
 
-    // Progress of heightening
-    int growthTarget;
-    Fixed growthProgress; // 0 <= growthProgress <= growthTarget
-    bool growthCascadeUp;
-    bool growthCascadeDown;
-
-    Fixed growthPerS;
-
-    entityx::Entity entity;
-
-    bool waterSource;
-    Fixed water;
-
     GridPoint()
         : height(0),
-          dirty(false),
-          growthTarget(0), growthProgress(0),
-          growthCascadeUp(false),
-          growthCascadeDown(false),
-          entity(),
-          waterSource(false),
-          water(10) {
-    }
-
-    bool usable() const {
-        assert(growthTarget != 0 || growthProgress == Fixed(0));
-
-        return growthTarget == 0 &&
-               !entity &&
-               water == Fixed(0);
+          dirty(false) { 
     }
 };
 
@@ -127,12 +100,7 @@ struct Map {
                 f(point(x, y));
     }
 
-    void crater(const Pos &p, size_t depth);
-    void raise(const Pos &p, const Pos &s);
-
-    void tick(entityx::EntityManager &, Fixed tickLengthS);
-
-    void waterTick(Fixed tickLengthS);
+    void tick(Fixed tickLengthS);
 
 private:
     size_t sizeX;
@@ -141,15 +109,6 @@ private:
     size_t maxHeight;
 
     std::vector<GridPoint> points; // 2d array
-
-    struct PosLess {
-        bool operator()(const Pos &a, const Pos &b) {
-            return a.x < b.x || (a.x == b.x && a.y < b.y);
-        }
-    };
-
-    std::set<Pos, PosLess> growingPoints;
-    std::set<Pos, PosLess> activeWater;
 };
 
 #endif

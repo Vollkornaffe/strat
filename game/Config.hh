@@ -5,8 +5,8 @@
 
 struct Config {
     Config()
-        : screenWidth(1024)
-        , screenHeight(768)
+        : screenWidth(1280)
+        , screenHeight(1024)
         , fullscreen(false) {
     }
         

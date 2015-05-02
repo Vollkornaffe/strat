@@ -44,6 +44,7 @@ struct Sim {
 
 private:
     SimState state;
+
 };
 
 #endif

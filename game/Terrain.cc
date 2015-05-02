@@ -9,7 +9,7 @@
 #include <cmath>
 #include <GL/glu.h>
 
-#define POINT(x,y) glm::vec3(x, y, map.point(x, y).height + (map.point(x,y).growthTarget < 0 ? -1 : 1) * map.point(x,y).growthProgress)
+#define POINT(x,y) glm::vec3(x, y, map.point(x, y).height)
 
 struct Vertex {
     glm::vec3 position, color, normal;
@@ -27,6 +27,7 @@ struct Vertex {
 
 struct TerrainPatch {
     TerrainPatch(const Map &map,
+                 const Water &water,
                  const Map::Pos &position,
                  const Map::Pos &size); 
 
@@ -39,6 +40,8 @@ struct TerrainPatch {
 
 private:
     const Map &map;
+    const Water &water;
+
     Map::Pos position, size;
 
     AABB aabb;
@@ -50,9 +53,11 @@ private:
 };
 
 TerrainPatch::TerrainPatch(const Map &map,
+                           const Water &water,
                            const Map::Pos &position,
                            const Map::Pos &size)
-    : map(map), position(position), size(size),
+    : map(map), water(water),
+      position(position), size(size),
       aabb(glm::vec3(position, 0), glm::vec3(position + size, 0)) {
     init();
 }
@@ -224,26 +229,26 @@ void TerrainPatch::drawWater() {
         for (size_t y = position.y; y < position.y + size.y; y++) {
             glm::vec3 a(POINT(x,y)), b(POINT(x+1,y)),
                       c(POINT(x,y+1)), d(POINT(x+1,y+1));
-            float dz = 0.01;
+            float dz = 0;
 //#define WHEIGHT(x,y) dz + (int)map.point(x,y).water + sin((map.point(x,y).water - (float)(int)map.point(x,y).water)*M_PI/2.0f)
-#define WHEIGHT(x,y) dz + map.point(x,y).water;
+#define WHEIGHT(x,y) dz + water.point(x,y).height;
             a.z += WHEIGHT(x,y);
             b.z += WHEIGHT(x+1,y);
             c.z += WHEIGHT(x,y+1);
             d.z += WHEIGHT(x+1,y+1);
 
-            float ca = map.point(x,y).water > 1 ? 1 : map.point(x,y).water.toFloat();
-            float cb = map.point(x+1,y).water > 1 ? 1 : map.point(x+1,y).water.toFloat();
-            float cc = map.point(x,y+1).water > 1 ? 1 : map.point(x,y+1).water.toFloat();
-            float cd = map.point(x+1,y+1).water > 1 ? 1 : map.point(x+1,y+1).water.toFloat();
+            float ca = water.point(x,y).height > 1 ? 1 : water.point(x,y).height.toFloat();
+            float cb = water.point(x+1,y).height > 1 ? 1 : water.point(x+1,y).height.toFloat();
+            float cc = water.point(x,y+1).height > 1 ? 1 : water.point(x,y+1).height.toFloat();
+            float cd = water.point(x+1,y+1).height > 1 ? 1 : water.point(x+1,y+1).height.toFloat();
 
 #define ALPHA(x) (0.7f + (x)*0.3f)
 //#define ALPHA(x) 1
 
-            float minw = 0.1;
+            float minw = 0;
 
-            if (map.point(x+1,y+1).water > minw && map.point(x+1,y).water > minw && 
-                map.point(x,y).water > minw) {
+            if (water.point(x+1,y+1).height > minw && water.point(x+1,y).height > minw && 
+                water.point(x,y).height > minw) {
                 glm::vec3 n1(glm::normalize(glm::cross(a - d, b - d)));
                 glNormal3f(n1.x, n1.y, n1.z);
 
@@ -253,8 +258,8 @@ void TerrainPatch::drawWater() {
                 glVertex3f(d.x, d.y, d.z);
             }
             
-            if (map.point(x,y).water > minw && map.point(x,y+1).water > minw && 
-                map.point(x+1,y+1).water > minw) {
+            if (water.point(x,y).height > minw && water.point(x,y+1).height > minw && 
+                water.point(x+1,y+1).height > minw) {
                 glm::vec3 n2(glm::normalize(glm::cross(c - d, a - d)));
                 glNormal3f(n2.x, n2.y, n2.z);
 
@@ -277,8 +282,8 @@ glm::vec3 TerrainPatch::color(size_t height) const {
     return glm::vec3(205.0f / 255, 133.0f / 255, 63.0f / 255);
 }
 
-TerrainMesh::TerrainMesh(const Map &map, const Map::Pos &patchSize)
-    : map(map) {
+TerrainMesh::TerrainMesh(const Map &map, const Water &water, const Map::Pos &patchSize)
+    : map(map), water(water) {
     assert(map.getSizeX() % patchSize.x == 0);
     assert(map.getSizeY() % patchSize.y == 0);
 
@@ -290,7 +295,8 @@ TerrainMesh::TerrainMesh(const Map &map, const Map::Pos &patchSize)
             size_t py = y > 0 ? y * patchSize.y - 1 : 0;
             size_t wy = y > 0 ? patchSize.y + 1 : patchSize.y;
 
-            patches.push_back(new TerrainPatch(map, Map::Pos(px, py),
+            patches.push_back(new TerrainPatch(map, water,
+                                               Map::Pos(px, py),
                                                Map::Pos(wx-1, wy-1)));
         }
     }
@@ -330,7 +336,7 @@ bool TerrainMesh::intersectWithRay(const Ray &ray, Map::Pos &point, float &tMin)
 
 void TerrainMesh::init() {
     patches.push_back(
-        new TerrainPatch(map, Map::Pos(0, 0), map.getSize()));
+        new TerrainPatch(map, water, Map::Pos(0, 0), map.getSize()));
 }
 
 #undef POINT
