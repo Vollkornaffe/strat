@@ -45,8 +45,8 @@ struct PhysicsState : entityx::Component<PhysicsState> {
     fquat spin;
     fvec3 angularVelocity;
 
-    PhysicsState(fixed mass, fixed inertia, fvec3 position)
-        : mass(mass), inertia(inertia), position(position) {
+    PhysicsState(fvec3 size, fixed mass, fixed inertia, fvec3 position)
+        : size(size), mass(mass), inertia(inertia), position(position) {
     }
 
     void recalculate();

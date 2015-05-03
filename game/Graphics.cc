@@ -98,6 +98,7 @@ void RenderShipSystem::render(entityx::EntityManager &entities) {
     GameObject::Handle gameObject;
     PhysicsState::Handle physicsState;
     Ship::Handle ship;
+
     for (entityx::Entity entity :
          entities.entities_with_components(gameObject, physicsState, ship)) {
         assert(gameObject->getOwner() > 0 && gameObject->getOwner()-1 < 4);
@@ -105,13 +106,15 @@ void RenderShipSystem::render(entityx::EntityManager &entities) {
 
         glPushMatrix();
         glTranslatef(physicsState->position.x.toFloat(), physicsState->position.y.toFloat(), physicsState->position.z.toFloat());
+
         quat orientation(fixedToFloat(physicsState->orientation));
         mat4 orientationMatrix(glm::mat4_cast(orientation));
-
         glMultMatrixf(&orientationMatrix[0][0]);
 
-        glScalef(5.0, 5.0, 5.0);
+        glScalef(physicsState->size.x.toFloat(), physicsState->size.y.toFloat(), physicsState->size.z.toFloat());
         glColor4f(color.x, color.y, color.z, 1.0f);
+
+        glTranslatef(-0.5f, -0.5f, -0.5f);
 
         glBegin(GL_QUADS);
         drawCube();
