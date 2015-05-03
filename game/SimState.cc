@@ -21,13 +21,14 @@ SimState::SimState(const GameSettings &settings)
         getPlayer(player.id).ship = addShip(player.id, fvec2(Fixed(x), Fixed(y)));
     }
 
-    for (size_t i = 0; i < 10; i++) {
+    /*for (size_t i = 0; i < 10; i++) {
         size_t x = rand() % settings.mapW, y = rand() % settings.mapH;
         size_t v = rand() % 100;
         water.splash(Map::Pos(x, y), v);
     }
     for (int i = 0; i < 10; i++)
-        water.tick(Fixed(1)/Fixed(10));
+        water.tick(Fixed(1)/Fixed(10));*/
+    water.splash(Map::Pos(128,128), 500.0f);
 }
 
 bool SimState::isOrderValid(const Order &order) const {
@@ -54,12 +55,13 @@ void SimState::runOrder(const Order &order) {
 
             /*size_t x1 = rand() % settings.mapW, y1 = rand() % settings.mapH;
             size_t x2 = rand() % settings.mapW, y2 = rand() % settings.mapH;
-            for (size_t x = x1; x <= x1 + 50 && x < map.getSizeX(); x++)
-                for (size_t y = y1; y <= y1 + 50 && y < map.getSizeY(); y++)
-                        water.splash(Map::Pos(x, y), 5.0f + rand() % 10);*/
+            for (size_t x = x1; x <= x1 + 10 && x < map.getSizeX(); x++)
+                for (size_t y = y1; y <= y1 + 10 && y < map.getSizeY(); y++)
+                        water.splash(Map::Pos(x, y), 50);*/
 
-            /*for (size_t x = 0; x < map.getSizeX(); x++)
-                water.splash(Map::Pos(x, 0), 15.0f);*/
+            for (size_t y = 0; y < 10; y++)
+                for (size_t x = 0; x < map.getSizeX(); x++)
+                    water.splash(Map::Pos(x, y), 10.0f);
 
             break;
         }
@@ -106,7 +108,8 @@ Fixed SimState::getTickLengthS() const {
 entityx::Entity SimState::addShip(PlayerId owner, const fvec2 &position) {
     entityx::Entity entity = entities.create();
     entity.assign<GameObject>(owner, ++entityCounter);
-    entity.assign<Ship>(fvec3(position, Fixed(0)));
+    entity.assign<PhysicsState>(fvec3(position, Fixed(0)));
+    entity.assign<Ship>();
 
     return entity;
 }
@@ -128,6 +131,7 @@ void SimState::tick() {
 
     {
         PROFILE(objects);
+        physicsSystem.tick(*this, tickLengthS);
         shipSystem.tick(*this, tickLengthS);
     }
 } 

@@ -8,6 +8,9 @@
 #include <inline_variant_visitor/inline_variant.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/quaternion.hpp>
+
 #include <vector>
 #include <iostream>
 
@@ -93,14 +96,20 @@ void RenderShipSystem::render(entityx::EntityManager &entities) {
     glDisable(GL_CULL_FACE);
 
     GameObject::Handle gameObject;
+    PhysicsState::Handle physicsState;
     Ship::Handle ship;
     for (entityx::Entity entity :
-         entities.entities_with_components(gameObject, ship)) {
+         entities.entities_with_components(gameObject, physicsState, ship)) {
         assert(gameObject->getOwner() > 0 && gameObject->getOwner()-1 < 4);
         vec3 color(playerColors[gameObject->getOwner()-1]); //TODO
 
         glPushMatrix();
-        glTranslatef(ship->position.x, ship->position.y, ship->position.z);
+        glTranslatef(physicsState->position.x, physicsState->position.y, physicsState->position.z);
+        quat orientation(physicsState->orientation);
+        mat4 orientationMatrix(glm::mat4_cast(orientation));
+
+        glMultMatrixf(&orientationMatrix[0][0]);
+
         glScalef(5.0, 5.0, 5.0);
         glColor4f(color.x, color.y, color.z, 1.0f);
 

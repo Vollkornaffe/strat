@@ -8,6 +8,10 @@
 
 struct SimState;
 
+struct PhysicsSystem {
+    void tick(SimState &, Fixed tickLengthS);
+};
+
 struct ShipSystem {
     void accelerate(SimState &, PlayerId, Direction);
     void tick(SimState &, Fixed tickLengthS);

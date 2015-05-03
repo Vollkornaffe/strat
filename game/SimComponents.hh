@@ -26,16 +26,33 @@ private:
     ObjectId id;
 };
 
-struct Ship : entityx::Component<Ship> {
+struct PhysicsState : entityx::Component<PhysicsState> {
+    // Movement
     fvec3 position;
+    fvec3 momentum;
+
+    fvec3 velocity;
+    fvec3 force;
+
+    Fixed mass;
+
+    // Rotation
     fquat orientation;
+    fvec3 angularMomentum;
 
-    fquat velocity;
-    fquat angularVelocity;
+    fquat spin;
+    fvec3 angularVelocity;
 
-    Ship(fvec3 position)
+    Fixed inertia;
+
+    PhysicsState(fvec3 position)
         : position(position) {
     }
+
+    void recalculate();
+};
+
+struct Ship : entityx::Component<Ship> {
 };
 
 #endif

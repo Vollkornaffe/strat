@@ -7,6 +7,9 @@
 #include <array>
 
 #include <glm/glm.hpp>
+
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/quaternion.hpp>
 #include <Fixed.hh>
 
 typedef uint16_t PlayerId; // Valid client ids are > 0

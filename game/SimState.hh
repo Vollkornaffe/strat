@@ -72,6 +72,7 @@ private:
 
     Fixed time;
 
+    PhysicsSystem physicsSystem;
     ShipSystem shipSystem;
 
     static PlayerMap playersFromSettings(const GameSettings &);
