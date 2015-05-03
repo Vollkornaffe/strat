@@ -56,6 +56,6 @@ Map Map::generate(size_t sizeX, size_t sizeY,
     return std::move(map); 
 }
 
-void Map::tick(Fixed tickLengthS) {
+void Map::tick(fixed tickLengthS) {
 }
 

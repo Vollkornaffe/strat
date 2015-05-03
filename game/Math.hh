@@ -10,7 +10,7 @@
 #endif
 
 template <typename T>
-T lerp(T a, T b, T t) {
+T lerp(const T &a, const T &b, const T &t) {
     return (1 - t) * a + t * b;
 }
 

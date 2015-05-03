@@ -8,20 +8,20 @@ Water::Water(const Map &map)
       newBuffer(&points[0]),
       oldBuffer(&points[1]),
       numPasses(8),
-      dampening(Fixed(4) / Fixed(160)),
-      tension(Fixed(1) / Fixed(10)),
-      spread(Fixed(3) / Fixed(4)) {
+      dampening(fixed(4) / fixed(160)),
+      tension(fixed(1) / fixed(10)),
+      spread(fixed(3) / fixed(4)) {
 }
 
 void Water::splash(const Map::Pos &p, float speed) {
     point(p).velocity += speed;  
 }
 
-void Water::tick(Fixed tickLengthS) {
+void Water::tick(fixed tickLengthS) {
     for (auto &p : *oldBuffer)
         spring(tickLengthS, p);
 
-    /*Fixed rain = Fixed(5) / Fixed(1);
+    /*fixed rain = fixed(5) / fixed(1);
     point(32,32).velocity += rain;
     point(256-32,256-32).velocity += rain;
     point(256-32,32).velocity += rain;
@@ -51,23 +51,23 @@ void Water::tick(Fixed tickLengthS) {
     }
 }
 
-void Water::spring(Fixed tickLengthS, WaterPoint &point) {
+void Water::spring(fixed tickLengthS, WaterPoint &point) {
     // Hooke's law with euler integration and dampening
-    Fixed x = point.height - Fixed(100);
-    Fixed acceleration = -tension * x - dampening * point.velocity;
+    fixed x = point.height - fixed(100);
+    fixed acceleration = -tension * x - dampening * point.velocity;
 
     point.height += point.velocity * tickLengthS;
     point.velocity += acceleration * tickLengthS;
 }
 
-void Water::propagate(Fixed tickLengthS, 
+void Water::propagate(fixed tickLengthS, 
                       size_t fromX, size_t fromY,
                       size_t toX, size_t toY) {
     WaterPoint &from(point(fromX, fromY)),
                &oldTo(point(toX, toY)),
                &newTo((*newBuffer)[toY * sizeX + toX]);
 
-    Fixed delta = spread * (from.height - oldTo.height); 
+    fixed delta = spread * (from.height - oldTo.height); 
     newTo.velocity += delta * tickLengthS;
     //newTo.height += delta * tickLengthS;
 }

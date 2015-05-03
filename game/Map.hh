@@ -1,9 +1,10 @@
 #ifndef STRAT_GAME_MAP_HH
 #define STRAT_GAME_MAP_HH
 
+#include "Fixed.hh"
+
 #include <entityx/entityx.h>
 #include <glm/glm.hpp>
-#include <Fixed.hh>
 
 #include <cstring>
 #include <cassert>
@@ -100,7 +101,7 @@ struct Map {
                 f(point(x, y));
     }
 
-    void tick(Fixed tickLengthS);
+    void tick(fixed tickLengthS);
 
 private:
     size_t sizeX;

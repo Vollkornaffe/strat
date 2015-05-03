@@ -1,13 +1,13 @@
 #include "game/SimComponents.hh"
 
-PhysicsState::recalculate() {
+void PhysicsState::recalculate() {
     velocity = momentum / mass;
 
-    angularVelocity = angularMomentum / inertia;
+    //angularVelocity = angularMomentum / inertia;
 
-    orientation.normalize();
+    //orientation = glm::normalize(orientation);
 
-    fquat q(0, angularVelocity);
+    //fquat q(Fixed(0), angularVelocity);
 
-    spin = Fixed(1)/Fixed(2) * q * orientation;
+    //spin = Fixed(1)/Fixed(2) * q * orientation;
 }

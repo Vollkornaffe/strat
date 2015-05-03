@@ -2,14 +2,13 @@
 #define STRAT_GAME_WATER_HH
 
 #include "Map.hh"
-
-#include <Fixed.hh>
+#include "Fixed.hh"
 
 #include <cassert>
 #include <vector>
 
 struct WaterPoint {
-    Fixed height, velocity;
+    fixed height, velocity;
 
     WaterPoint()
         : height(100), velocity() {
@@ -41,11 +40,11 @@ struct Water {
 
     void splash(const Map::Pos &, float speed);
 
-    void tick(Fixed tickLengthS);
+    void tick(fixed tickLengthS);
 
 private:
-    void spring(Fixed tickLengthS, WaterPoint &point);
-    void propagate(Fixed tickLengthS, 
+    void spring(fixed tickLengthS, WaterPoint &point);
+    void propagate(fixed tickLengthS, 
                    size_t fromX, size_t fromY,
                    size_t toX, size_t toY);
 
@@ -58,9 +57,9 @@ private:
 
     size_t numPasses;
 
-    Fixed dampening;
-    Fixed tension;
-    Fixed spread;
+    fixed dampening;
+    fixed tension;
+    fixed spread;
 };
 
 #endif

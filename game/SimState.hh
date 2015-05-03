@@ -4,11 +4,11 @@
 #include "Map.hh"
 #include "Water.hh"
 #include "SimSystems.hh"
+#include "Fixed.hh"
 #include "common/GameSettings.hh"
 #include "common/Order.hh"
 
 #include <entityx/entityx.h>
-#include <Fixed.hh>
 #include <map>
 
 using entityx::Entity;
@@ -46,15 +46,15 @@ struct SimState : entityx::EntityX {
     PlayerState &getPlayer(PlayerId);
     const PlayerState &getPlayer(PlayerId) const;
 
-    entityx::Entity getGameObject(ObjectId) const;
+    Entity getGameObject(ObjectId) const;
 
     // Tick length in seconds
-    Fixed getTickLengthS() const;
+    fixed getTickLengthS() const;
 
     // Time elapsed in simulation in seconds
-    Fixed getTimeS() const { return time; }
+    fixed getTimeS() const { return time; }
 
-    entityx::Entity addShip(PlayerId owner, const fvec2 &position);
+    Entity addShip(PlayerId owner, const fvec2 &position);
 
     void tick();
 
@@ -70,7 +70,7 @@ private:
 
     size_t entityCounter;
 
-    Fixed time;
+    fixed time;
 
     PhysicsSystem physicsSystem;
     ShipSystem shipSystem;

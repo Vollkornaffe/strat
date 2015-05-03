@@ -18,7 +18,7 @@ SimState::SimState(const GameSettings &settings)
       time(0) {
     for (auto &player : settings.players) {
         size_t x = rand() % settings.mapW, y = rand() % settings.mapH;
-        getPlayer(player.id).ship = addShip(player.id, fvec2(Fixed(x), Fixed(y)));
+        getPlayer(player.id).ship = addShip(player.id, fvec2(fixed(x), fixed(y)));
     }
 
     /*for (size_t i = 0; i < 10; i++) {
@@ -27,7 +27,7 @@ SimState::SimState(const GameSettings &settings)
         water.splash(Map::Pos(x, y), v);
     }
     for (int i = 0; i < 10; i++)
-        water.tick(Fixed(1)/Fixed(10));*/
+        water.tick(fixed(1)/fixed(10));*/
     water.splash(Map::Pos(128,128), 500.0f);
 }
 
@@ -101,21 +101,21 @@ entityx::Entity SimState::getGameObject(ObjectId id) const {
 }
 
 
-Fixed SimState::getTickLengthS() const {
-    return Fixed(settings.tickLengthMs) / Fixed(1000);
+fixed SimState::getTickLengthS() const {
+    return fixed(settings.tickLengthMs) / fixed(1000);
 }
 
 entityx::Entity SimState::addShip(PlayerId owner, const fvec2 &position) {
     entityx::Entity entity = entities.create();
     entity.assign<GameObject>(owner, ++entityCounter);
-    entity.assign<PhysicsState>(fvec3(position, Fixed(0)));
+    entity.assign<PhysicsState>(fixed(100), fixed(100), fvec3(position, fixed(0)));
     entity.assign<Ship>();
 
     return entity;
 }
 
 void SimState::tick() {
-    Fixed tickLengthS = getTickLengthS();
+    fixed tickLengthS = getTickLengthS();
 
     time += tickLengthS;
 

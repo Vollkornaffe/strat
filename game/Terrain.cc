@@ -229,30 +229,22 @@ void TerrainPatch::drawWater() {
         for (size_t y = position.y; y < position.y + size.y; y++) {
             glm::vec3 a(POINT(x,y)), b(POINT(x+1,y)),
                       c(POINT(x,y+1)), d(POINT(x+1,y+1));
-            float dz = 0;
-//#define WHEIGHT(x,y) dz + (int)map.point(x,y).water + sin((map.point(x,y).water - (float)(int)map.point(x,y).water)*M_PI/2.0f)
-#define WHEIGHT(x,y) dz + water.point(x,y).height;
+#define WHEIGHT(x,y) water.point(x,y).height.toFloat();
             a.z += WHEIGHT(x,y);
             b.z += WHEIGHT(x+1,y);
             c.z += WHEIGHT(x,y+1);
             d.z += WHEIGHT(x+1,y+1);
 
-            float ca = water.point(x,y).height > 1 ? 1 : water.point(x,y).height.toFloat();
-            float cb = water.point(x+1,y).height > 1 ? 1 : water.point(x+1,y).height.toFloat();
-            float cc = water.point(x,y+1).height > 1 ? 1 : water.point(x,y+1).height.toFloat();
-            float cd = water.point(x+1,y+1).height > 1 ? 1 : water.point(x+1,y+1).height.toFloat();
+#define ALPHA(x) 1
 
-#define ALPHA(x) (0.7f + (x)*0.3f)
-//#define ALPHA(x) 1
-
-            float minw = 0;
+            fixed minw = 0;
 
             if (water.point(x+1,y+1).height > minw && water.point(x+1,y).height > minw && 
                 water.point(x,y).height > minw) {
                 glm::vec3 n1(glm::normalize(glm::cross(a - d, b - d)));
                 glNormal3f(n1.x, n1.y, n1.z);
 
-                glColor4f(0.0f, 0.2f, 0.5f, ALPHA((cd + cb + ca) / 3));
+                glColor4f(0.0f, 0.2f, 0.5f, 1.0f);
                 glVertex3f(a.x, a.y, a.z);
                 glVertex3f(b.x, b.y, b.z);
                 glVertex3f(d.x, d.y, d.z);
@@ -263,7 +255,7 @@ void TerrainPatch::drawWater() {
                 glm::vec3 n2(glm::normalize(glm::cross(c - d, a - d)));
                 glNormal3f(n2.x, n2.y, n2.z);
 
-                glColor4f(0.0f, 0.2f, 0.5f, ALPHA((ca + cc + cd) / 3));
+                glColor4f(0.0f, 0.2f, 0.5f, 1.0f);
                 glVertex3f(d.x, d.y, d.z);
                 glVertex3f(c.x, c.y, c.z);
                 glVertex3f(a.x, a.y, a.z);

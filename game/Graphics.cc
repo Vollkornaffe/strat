@@ -104,8 +104,8 @@ void RenderShipSystem::render(entityx::EntityManager &entities) {
         vec3 color(playerColors[gameObject->getOwner()-1]); //TODO
 
         glPushMatrix();
-        glTranslatef(physicsState->position.x, physicsState->position.y, physicsState->position.z);
-        quat orientation(physicsState->orientation);
+        glTranslatef(physicsState->position.x.toFloat(), physicsState->position.y.toFloat(), physicsState->position.z.toFloat());
+        quat orientation(fixedToFloat(physicsState->orientation));
         mat4 orientationMatrix(glm::mat4_cast(orientation));
 
         glMultMatrixf(&orientationMatrix[0][0]);

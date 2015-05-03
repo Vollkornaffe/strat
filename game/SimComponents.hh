@@ -2,13 +2,10 @@
 #define STRAT_GAME_SIM_COMPONENTS_HH
 
 #include "Map.hh"
-#include "Math.hh"
+#include "Fixed.hh"
 #include "common/Defs.hh"
 
 #include <entityx/entityx.h>
-#include <Fixed.hh>
-
-#include <algorithm>
 
 using entityx::Entity;
 
@@ -27,14 +24,19 @@ private:
 };
 
 struct PhysicsState : entityx::Component<PhysicsState> {
+    // Size of bounding box
+    fvec3 size;
+
+    // Properties
+    fixed mass;
+    fixed inertia;
+
     // Movement
     fvec3 position;
     fvec3 momentum;
 
     fvec3 velocity;
     fvec3 force;
-
-    Fixed mass;
 
     // Rotation
     fquat orientation;
@@ -43,10 +45,8 @@ struct PhysicsState : entityx::Component<PhysicsState> {
     fquat spin;
     fvec3 angularVelocity;
 
-    Fixed inertia;
-
-    PhysicsState(fvec3 position)
-        : position(position) {
+    PhysicsState(fixed mass, fixed inertia, fvec3 position)
+        : mass(mass), inertia(inertia), position(position) {
     }
 
     void recalculate();

@@ -77,7 +77,7 @@ PerlinNoise::PerlinNoise(size_t width, size_t height)
     : width(width)
     , height(height)
     , whiteNoise(width * height)
-    , noise (width * height) {
+    , noise(width * height) {
 }
 
 void PerlinNoise::generate(size_t octaves, float persistence) {

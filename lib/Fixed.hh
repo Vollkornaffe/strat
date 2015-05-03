@@ -26,7 +26,7 @@
    (* http://www.opensource.org/licenses/mit-license.php *)
    */
 
-class Fixed {
+class fixed {
 private:
     int	g; // the guts
 
@@ -37,137 +37,141 @@ private:
     static double STEP() { return 1.0 / (1<<BP); }  // smallest step we can represent
 
     // for private construction via guts
-    enum FixedRaw { RAW };
-    Fixed(FixedRaw, int guts) : g(guts) {}
+    enum fixedRaw { RAW };
+    fixed(fixedRaw, int guts) : g(guts) {}
 
 
 public:
-    Fixed() : g(0) {}
-    Fixed(const Fixed& a) : g( a.g ) {}
-    /*Fixed(float a) : g( int(a / (float)STEP()) ) {}
-    Fixed(double a) : g( int(a / (double)STEP()) ) {}*/
-    explicit Fixed(int a) : g( a << BP ) {}
-    //explicit Fixed(size_t s) : Fixed((int)s) {}
-    Fixed& operator =(const Fixed& a) { g= a.g; return *this; }
-    /*Fixed& operator =(float a) { g= Fixed(a).g; return *this; }
-    Fixed& operator =(double a) { g= Fixed(a).g; return *this; }*/
-    Fixed& operator =(int a) { g= Fixed(a).g; return *this; }
+    fixed() : g(0) {}
+    fixed(const fixed& a) : g( a.g ) {}
+    /*fixed(float a) : g( int(a / (float)STEP()) ) {}
+    fixed(double a) : g( int(a / (double)STEP()) ) {}*/
+    fixed(int a) : g( a << BP ) {}
+    //explicit fixed(size_t s) : fixed((int)s) {}
+    fixed& operator =(const fixed& a) { g= a.g; return *this; }
+    /*fixed& operator =(float a) { g= fixed(a).g; return *this; }
+    fixed& operator =(double a) { g= fixed(a).g; return *this; }*/
+    fixed& operator =(int a) { g= fixed(a).g; return *this; }
 
     float toFloat() const { return g * (float)STEP(); }
     double toDouble() const { return g * (double)STEP(); }
     int toInt() const { return g>>BP; }
 
-    Fixed abs() const { return Fixed(RAW, std::abs(g)); }
+    fixed abs() const { return fixed(RAW, std::abs(g)); }
 
-    operator float() const { return toFloat(); } 
+    //operator float() const { return toFloat(); } 
 
-    Fixed operator +() const { return Fixed(RAW,g); }
-    Fixed operator -() const { return Fixed(RAW,-g); }
-
-    Fixed operator +(const Fixed& a) const { return Fixed(RAW, g + a.g); }
-    Fixed operator -(const Fixed& a) const { return Fixed(RAW, g - a.g); }
-#if 1
-    // more acurate, using long long
-    Fixed operator *(const Fixed& a) const { return Fixed(RAW,  (int)( ((long long)g * (long long)a.g ) >> BP)); }
-#else
-    // faster, but with only half as many bits right of binary point
-    Fixed operator *(const Fixed& a) const { return Fixed(RAW, (g>>BPhalf) * (a.g>>BPhalf) ); }
-#endif
-    Fixed operator /(const Fixed& a) const { 
-        return Fixed(RAW, int( (((long long)g << BP2) / (long long)(a.g)) >> BP) );
+    static fixed fromFloat(float f) {
+        return fixed(RAW,f / (float)STEP());
     }
 
-    /*Fixed operator +(float a) const { return Fixed(RAW, g + Fixed(a).g); }
-    Fixed operator -(float a) const { return Fixed(RAW, g - Fixed(a).g); }
-    Fixed operator *(float a) const { return Fixed(RAW, (g>>BPhalf) * (Fixed(a).g>>BPhalf) ); }
-    Fixed operator /(float a) const { return Fixed(RAW, int( (((long long)g << BP2) / (long long)(Fixed(a).g)) >> BP) ); }
+    fixed operator +() const { return fixed(RAW,g); }
+    fixed operator -() const { return fixed(RAW,-g); }
 
-    Fixed operator +(double a) const { return Fixed(RAW, g + Fixed(a).g); }
-    Fixed operator -(double a) const { return Fixed(RAW, g - Fixed(a).g); }
-    Fixed operator *(double a) const { return Fixed(RAW, (g>>BPhalf) * (Fixed(a).g>>BPhalf) ); }
-    Fixed operator /(double a) const { return Fixed(RAW, int( (((long long)g << BP2) / (long long)(Fixed(a).g)) >> BP) ); }*/
+    fixed operator +(const fixed& a) const { return fixed(RAW, g + a.g); }
+    fixed operator -(const fixed& a) const { return fixed(RAW, g - a.g); }
+#if 1
+    // more acurate, using long long
+    fixed operator *(const fixed& a) const { return fixed(RAW,  (int)( ((long long)g * (long long)a.g ) >> BP)); }
+#else
+    // faster, but with only half as many bits right of binary point
+    fixed operator *(const fixed& a) const { return fixed(RAW, (g>>BPhalf) * (a.g>>BPhalf) ); }
+#endif
+    fixed operator /(const fixed& a) const { 
+        return fixed(RAW, int( (((long long)g << BP2) / (long long)(a.g)) >> BP) );
+    }
 
-    Fixed& operator +=(Fixed a) { return *this = *this + a; return *this; }
-    Fixed& operator -=(Fixed a) { return *this = *this - a; return *this; }
-    Fixed& operator *=(Fixed a) { return *this = *this * a; return *this; }
-    Fixed& operator /=(Fixed a) { return *this = *this / a; return *this; }
+    /*fixed operator +(float a) const { return fixed(RAW, g + fixed(a).g); }
+    fixed operator -(float a) const { return fixed(RAW, g - fixed(a).g); }
+    fixed operator *(float a) const { return fixed(RAW, (g>>BPhalf) * (fixed(a).g>>BPhalf) ); }
+    fixed operator /(float a) const { return fixed(RAW, int( (((long long)g << BP2) / (long long)(fixed(a).g)) >> BP) ); }
 
-    Fixed& operator +=(int a) { return *this = *this + (Fixed)a; return *this; }
-    Fixed& operator -=(int a) { return *this = *this - (Fixed)a; return *this; }
-    Fixed& operator *=(int a) { return *this = *this * (Fixed)a; return *this; }
-    Fixed& operator /=(int a) { return *this = *this / (Fixed)a; return *this; }
+    fixed operator +(double a) const { return fixed(RAW, g + fixed(a).g); }
+    fixed operator -(double a) const { return fixed(RAW, g - fixed(a).g); }
+    fixed operator *(double a) const { return fixed(RAW, (g>>BPhalf) * (fixed(a).g>>BPhalf) ); }
+    fixed operator /(double a) const { return fixed(RAW, int( (((long long)g << BP2) / (long long)(fixed(a).g)) >> BP) ); }*/
 
-    /*Fixed& operator +=(float a) { return *this = *this + a; return *this; }
-    Fixed& operator -=(float a) { return *this = *this - a; return *this; }
-    Fixed& operator *=(float a) { return *this = *this * a; return *this; }
-    Fixed& operator /=(float a) { return *this = *this / a; return *this; }
+    fixed& operator +=(fixed a) { return *this = *this + a; return *this; }
+    fixed& operator -=(fixed a) { return *this = *this - a; return *this; }
+    fixed& operator *=(fixed a) { return *this = *this * a; return *this; }
+    fixed& operator /=(fixed a) { return *this = *this / a; return *this; }
 
-    Fixed& operator +=(double a) { return *this = *this + a; return *this; }
-    Fixed& operator -=(double a) { return *this = *this - a; return *this; }
-    Fixed& operator *=(double a) { return *this = *this * a; return *this; }
-    Fixed& operator /=(double a) { return *this = *this / a; return *this; }*/
+    fixed& operator +=(int a) { return *this = *this + (fixed)a; return *this; }
+    fixed& operator -=(int a) { return *this = *this - (fixed)a; return *this; }
+    fixed& operator *=(int a) { return *this = *this * (fixed)a; return *this; }
+    fixed& operator /=(int a) { return *this = *this / (fixed)a; return *this; }
 
-    bool operator ==(const Fixed& a) const { return g == a.g; }
-    bool operator !=(const Fixed& a) const { return g != a.g; }
-    bool operator <=(const Fixed& a) const { return g <= a.g; }
-    bool operator >=(const Fixed& a) const { return g >= a.g; }
-    bool operator  <(const Fixed& a) const { return g  < a.g; }
-    bool operator  >(const Fixed& a) const { return g  > a.g; }
+    /*fixed& operator +=(float a) { return *this = *this + a; return *this; }
+    fixed& operator -=(float a) { return *this = *this - a; return *this; }
+    fixed& operator *=(float a) { return *this = *this * a; return *this; }
+    fixed& operator /=(float a) { return *this = *this / a; return *this; }
 
-    /*bool operator ==(float a) const { return g == Fixed(a).g; }
-    bool operator !=(float a) const { return g != Fixed(a).g; }
-    bool operator <=(float a) const { return g <= Fixed(a).g; }
-    bool operator >=(float a) const { return g >= Fixed(a).g; }
-    bool operator  <(float a) const { return g  < Fixed(a).g; }
-    bool operator  >(float a) const { return g  > Fixed(a).g; }
+    fixed& operator +=(double a) { return *this = *this + a; return *this; }
+    fixed& operator -=(double a) { return *this = *this - a; return *this; }
+    fixed& operator *=(double a) { return *this = *this * a; return *this; }
+    fixed& operator /=(double a) { return *this = *this / a; return *this; }*/
 
-    bool operator ==(double a) const { return g == Fixed(a).g; }
-    bool operator !=(double a) const { return g != Fixed(a).g; }
-    bool operator <=(double a) const { return g <= Fixed(a).g; }
-    bool operator >=(double a) const { return g >= Fixed(a).g; }
-    bool operator  <(double a) const { return g  < Fixed(a).g; }
-    bool operator  >(double a) const { return g  > Fixed(a).g; }*/
+    bool operator ==(const fixed& a) const { return g == a.g; }
+    bool operator !=(const fixed& a) const { return g != a.g; }
+    bool operator <=(const fixed& a) const { return g <= a.g; }
+    bool operator >=(const fixed& a) const { return g >= a.g; }
+    bool operator  <(const fixed& a) const { return g  < a.g; }
+    bool operator  >(const fixed& a) const { return g  > a.g; }
+
+    /*bool operator ==(float a) const { return g == fixed(a).g; }
+    bool operator !=(float a) const { return g != fixed(a).g; }
+    bool operator <=(float a) const { return g <= fixed(a).g; }
+    bool operator >=(float a) const { return g >= fixed(a).g; }
+    bool operator  <(float a) const { return g  < fixed(a).g; }
+    bool operator  >(float a) const { return g  > fixed(a).g; }
+
+    bool operator ==(double a) const { return g == fixed(a).g; }
+    bool operator !=(double a) const { return g != fixed(a).g; }
+    bool operator <=(double a) const { return g <= fixed(a).g; }
+    bool operator >=(double a) const { return g >= fixed(a).g; }
+    bool operator  <(double a) const { return g  < fixed(a).g; }
+    bool operator  >(double a) const { return g  > fixed(a).g; }*/
 };
 
-/*inline Fixed operator +(float a, const Fixed& b) { return Fixed(a)+b; }
-inline Fixed operator -(float a, const Fixed& b) { return Fixed(a)-b; }
-inline Fixed operator *(float a, const Fixed& b) { return Fixed(a)*b; }
-inline Fixed operator /(float a, const Fixed& b) { return Fixed(a)/b; }
+/*inline fixed operator +(float a, const fixed& b) { return fixed(a)+b; }
+inline fixed operator -(float a, const fixed& b) { return fixed(a)-b; }
+inline fixed operator *(float a, const fixed& b) { return fixed(a)*b; }
+inline fixed operator /(float a, const fixed& b) { return fixed(a)/b; }
 
-inline bool operator ==(float a, const Fixed& b) { return Fixed(a) == b; }
-inline bool operator !=(float a, const Fixed& b) { return Fixed(a) != b; }
-inline bool operator <=(float a, const Fixed& b) { return Fixed(a) <= b; }
-inline bool operator >=(float a, const Fixed& b) { return Fixed(a) >= b; }
-inline bool operator  <(float a, const Fixed& b) { return Fixed(a)  < b; }
-inline bool operator  >(float a, const Fixed& b) { return Fixed(a)  > b; }
-
-
-
-inline Fixed operator +(double a, const Fixed& b) { return Fixed(a)+b; }
-inline Fixed operator -(double a, const Fixed& b) { return Fixed(a)-b; }
-inline Fixed operator *(double a, const Fixed& b) { return Fixed(a)*b; }
-inline Fixed operator /(double a, const Fixed& b) { return Fixed(a)/b; }
-
-inline bool operator ==(double a, const Fixed& b) { return Fixed(a) == b; }
-inline bool operator !=(double a, const Fixed& b) { return Fixed(a) != b; }
-inline bool operator <=(double a, const Fixed& b) { return Fixed(a) <= b; }
-inline bool operator >=(double a, const Fixed& b) { return Fixed(a) >= b; }
-inline bool operator  <(double a, const Fixed& b) { return Fixed(a)  < b; }
-inline bool operator  >(double a, const Fixed& b) { return Fixed(a)  > b; }*/
+inline bool operator ==(float a, const fixed& b) { return fixed(a) == b; }
+inline bool operator !=(float a, const fixed& b) { return fixed(a) != b; }
+inline bool operator <=(float a, const fixed& b) { return fixed(a) <= b; }
+inline bool operator >=(float a, const fixed& b) { return fixed(a) >= b; }
+inline bool operator  <(float a, const fixed& b) { return fixed(a)  < b; }
+inline bool operator  >(float a, const fixed& b) { return fixed(a)  > b; }
 
 
-inline int& operator +=(int& a, const Fixed& b) { a = ((Fixed)a + b).toInt(); return a; }
-inline int& operator -=(int& a, const Fixed& b) { a = ((Fixed)a - b).toInt(); return a; }
-inline int& operator *=(int& a, const Fixed& b) { a = ((Fixed)a * b).toInt(); return a; }
-inline int& operator /=(int& a, const Fixed& b) { a = ((Fixed)a / b).toInt(); return a; }
 
-/*inline float& operator +=(float& a, const Fixed& b) { a = a + b; return a; }
-inline float& operator -=(float& a, const Fixed& b) { a = a - b; return a; }
-inline float& operator *=(float& a, const Fixed& b) { a = a * b; return a; }
-inline float& operator /=(float& a, const Fixed& b) { a = a / b; return a; }
+inline fixed operator +(double a, const fixed& b) { return fixed(a)+b; }
+inline fixed operator -(double a, const fixed& b) { return fixed(a)-b; }
+inline fixed operator *(double a, const fixed& b) { return fixed(a)*b; }
+inline fixed operator /(double a, const fixed& b) { return fixed(a)/b; }
 
-inline double& operator +=(double& a, const Fixed& b) { a = a + b; return a; }
-inline double& operator -=(double& a, const Fixed& b) { a = a - b; return a; }
-inline double& operator *=(double& a, const Fixed& b) { a = a * b; return a; }
-inline double& operator /=(double& a, const Fixed& b) { a = a / b; return a; }*/
+inline bool operator ==(double a, const fixed& b) { return fixed(a) == b; }
+inline bool operator !=(double a, const fixed& b) { return fixed(a) != b; }
+inline bool operator <=(double a, const fixed& b) { return fixed(a) <= b; }
+inline bool operator >=(double a, const fixed& b) { return fixed(a) >= b; }
+inline bool operator  <(double a, const fixed& b) { return fixed(a)  < b; }
+inline bool operator  >(double a, const fixed& b) { return fixed(a)  > b; }*/
+
+
+inline int& operator +=(int& a, const fixed& b) { a = ((fixed)a + b).toInt(); return a; }
+inline int& operator -=(int& a, const fixed& b) { a = ((fixed)a - b).toInt(); return a; }
+inline int& operator *=(int& a, const fixed& b) { a = ((fixed)a * b).toInt(); return a; }
+inline int& operator /=(int& a, const fixed& b) { a = ((fixed)a / b).toInt(); return a; }
+
+/*inline float& operator +=(float& a, const fixed& b) { a = a + b; return a; }
+inline float& operator -=(float& a, const fixed& b) { a = a - b; return a; }
+inline float& operator *=(float& a, const fixed& b) { a = a * b; return a; }
+inline float& operator /=(float& a, const fixed& b) { a = a / b; return a; }
+
+inline double& operator +=(double& a, const fixed& b) { a = a + b; return a; }
+inline double& operator -=(double& a, const fixed& b) { a = a - b; return a; }
+inline double& operator *=(double& a, const fixed& b) { a = a * b; return a; }
+inline double& operator /=(double& a, const fixed& b) { a = a / b; return a; }*/
 

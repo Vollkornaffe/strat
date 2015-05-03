@@ -57,7 +57,7 @@ Input::Input(const Config &config, GLFWwindow *window, Client &client,
     //auto mainEnt = findMainBuilding();
     view.target = vec3(50, 50, 0); //mainEnt.component<Building>()->getPosition();
     const GridPoint &gp(map.point(view.target.x, view.target.y));
-    view.target.z = gp.height + sim.getState().getWater().point(view.target.x, view.target.y).height;
+    view.target.z = gp.height + sim.getState().getWater().point(view.target.x, view.target.y).height.toFloat();
 
     vec3 origin_camera(0, -40.0f, view.distance);
     view.position = view.target + rotateZ(origin_camera, view.angle);
@@ -162,7 +162,7 @@ void Input::tryScroll(const vec2 &delta) {
     if (view.target.y >= map.getSizeY()) view.target.y = map.getSizeY() - 1;
 
     const GridPoint &gp(map.point(view.target.x, view.target.y));
-    view.target.z = gp.height + sim.getState().getWater().point(view.target.x, view.target.y).height;
+    view.target.z = gp.height + sim.getState().getWater().point(view.target.x, view.target.y).height.toFloat();
 }
 
 entityx::Entity Input::pickEntity() {
