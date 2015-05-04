@@ -2,12 +2,10 @@
 
 void PhysicsState::recalculate() {
     velocity = momentum / mass;
+    angularVelocity = angularMomentum / inertia;
 
-    //angularVelocity = angularMomentum / inertia;
+    orientation = normalize(orientation);
 
-    //orientation = glm::normalize(orientation);
-
-    //fquat q(Fixed(0), angularVelocity);
-
-    //spin = Fixed(1)/Fixed(2) * q * orientation;
+    fquat q(fixed(0), angularVelocity);
+    spin = fixed(1)/fixed(2) * q * orientation;
 }

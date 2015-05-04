@@ -133,12 +133,12 @@ public:
     bool operator  >(double a) const { return g  > fixed(a).g; }*/
 };
 
-/*inline fixed operator +(float a, const fixed& b) { return fixed(a)+b; }
-inline fixed operator -(float a, const fixed& b) { return fixed(a)-b; }
-inline fixed operator *(float a, const fixed& b) { return fixed(a)*b; }
-inline fixed operator /(float a, const fixed& b) { return fixed(a)/b; }
+inline fixed operator +(int a, const fixed& b) { return fixed(a)+b; }
+inline fixed operator -(int a, const fixed& b) { return fixed(a)-b; }
+inline fixed operator *(int a, const fixed& b) { return fixed(a)*b; }
+inline fixed operator /(int a, const fixed& b) { return fixed(a)/b; }
 
-inline bool operator ==(float a, const fixed& b) { return fixed(a) == b; }
+/*inline bool operator ==(float a, const fixed& b) { return fixed(a) == b; }
 inline bool operator !=(float a, const fixed& b) { return fixed(a) != b; }
 inline bool operator <=(float a, const fixed& b) { return fixed(a) <= b; }
 inline bool operator >=(float a, const fixed& b) { return fixed(a) >= b; }

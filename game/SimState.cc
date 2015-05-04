@@ -28,7 +28,10 @@ SimState::SimState(const GameSettings &settings)
     }
     for (int i = 0; i < 10; i++)
         water.tick(fixed(1)/fixed(10));*/
-    water.splash(Map::Pos(128,128), 500.0f);
+    size_t x1 = 120, y1 = 120; 
+    for (size_t x = x1; x <= x1 + 16; x++)
+        for (size_t y = y1; y <= y1 + 16; y++)
+                water.splash(Map::Pos(x, y), fixed(1) / (1 + sqrt(fixed(((x-128)*(x-128) + (y-128)*(y-128))))) * fixed(100));
 }
 
 bool SimState::isOrderValid(const Order &order) const {
@@ -61,7 +64,7 @@ void SimState::runOrder(const Order &order) {
 
             for (size_t y = 0; y < 10; y++)
                 for (size_t x = 0; x < map.getSizeX(); x++)
-                    water.splash(Map::Pos(x, y), 10.0f);
+                    water.splash(Map::Pos(x, y), fixed(1));
 
             break;
         }
@@ -108,7 +111,7 @@ fixed SimState::getTickLengthS() const {
 entityx::Entity SimState::addShip(PlayerId owner, const fvec2 &position) {
     entityx::Entity entity = entities.create();
     entity.assign<GameObject>(owner, ++entityCounter);
-    entity.assign<PhysicsState>(fvec3(4, 4, 2), fixed(100), fixed(100), fvec3(position, fixed(0)));
+    entity.assign<PhysicsState>(fvec3(6, 4, 2), fixed(100), fixed(100), fvec3(position, fixed(110)));
     entity.assign<Ship>();
 
     return entity;

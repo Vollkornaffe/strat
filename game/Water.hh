@@ -9,9 +9,10 @@
 
 struct WaterPoint {
     fixed height, velocity;
+    fixed acceleration; // acceleration that was applied in the last water tick
 
     WaterPoint()
-        : height(100), velocity() {
+        : height(100), velocity(), acceleration() {
     }
 };
 
@@ -38,7 +39,7 @@ struct Water {
         return point(p.x, p.y);
     }
 
-    void splash(const Map::Pos &, float speed);
+    void splash(const Map::Pos &, fixed speed);
 
     void tick(fixed tickLengthS);
 

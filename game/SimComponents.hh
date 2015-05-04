@@ -53,6 +53,7 @@ struct PhysicsState : entityx::Component<PhysicsState> {
 };
 
 struct Ship : entityx::Component<Ship> {
+    fixed rudder;
 };
 
 #endif

@@ -13,7 +13,7 @@ Water::Water(const Map &map)
       spread(fixed(3) / fixed(4)) {
 }
 
-void Water::splash(const Map::Pos &p, float speed) {
+void Water::splash(const Map::Pos &p, fixed speed) {
     point(p).velocity += speed;  
 }
 
@@ -54,10 +54,10 @@ void Water::tick(fixed tickLengthS) {
 void Water::spring(fixed tickLengthS, WaterPoint &point) {
     // Hooke's law with euler integration and dampening
     fixed x = point.height - fixed(100);
-    fixed acceleration = -tension * x - dampening * point.velocity;
 
+    point.acceleration = -tension * x - dampening * point.velocity;
     point.height += point.velocity * tickLengthS;
-    point.velocity += acceleration * tickLengthS;
+    point.velocity += point.acceleration * tickLengthS;
 }
 
 void Water::propagate(fixed tickLengthS, 
@@ -69,5 +69,6 @@ void Water::propagate(fixed tickLengthS,
 
     fixed delta = spread * (from.height - oldTo.height); 
     newTo.velocity += delta * tickLengthS;
+    newTo.acceleration += delta * tickLengthS;
     //newTo.height += delta * tickLengthS;
 }
