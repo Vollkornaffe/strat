@@ -8,13 +8,13 @@
 
 #include <glm/glm.hpp>
 
-template<typename... Args>
+inline
 std::ostream& operator<<(std::ostream& os, glm::vec2 const& v) {
     return os << "vec2(" << v.x << ", "
                          << v.y << ")";
 }
 
-template<typename... Args>
+inline
 std::ostream& operator<<(std::ostream& os, glm::vec3 const& v) {
     return os << "vec3(" << v.x << ", "
                          << v.y << ", "

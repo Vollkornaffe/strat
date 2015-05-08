@@ -13,6 +13,45 @@ Water::Water(const Map &map)
       spread(fixed(3) / fixed(4)) {
 }
 
+
+WaterPoint Water::fpoint(const fvec2 &p) const {
+    assert(p.x >= 0 && p.x < sizeX);
+    assert(p.y >= 0 && p.y < sizeY);
+
+    size_t x1 = p.x.toInt(),
+           x2 = x1 < sizeX-1 ? x1 + 1 : x1;
+    size_t y1 = p.y.toInt(),
+           y2 = y1 < sizeY-1 ? y1 + 1 : y1;
+
+    fixed s = p.x - p.x.toInt(),
+          t = p.y - p.y.toInt();
+
+    fixed h11(point(x1, y1).height),
+          h21(point(x2, y1).height),
+          h22(point(x2, y2).height),
+          h12(point(x1, y2).height);
+    fixed v11(point(x1, y1).velocity),
+          v21(point(x2, y1).velocity),
+          v22(point(x2, y2).velocity),
+          v12(point(x1, y2).velocity);
+    fixed a11(point(x1, y1).acceleration),
+          a21(point(x2, y1).acceleration),
+          a22(point(x2, y2).acceleration),
+          a12(point(x1, y2).acceleration);
+
+    if (s + t <= 1) {
+        //std::cout << p.x << "|" << p.y << " (" << s << "|" << t << "): " <<h11 << "," << h21 << "," << h22 << "," << h12 << " -> " << h11 + s * (h21 - h11) + t * (h12 - h11) << std::endl;
+        return WaterPoint(h11 + s * (h21 - h11) + t * (h12 - h11),
+                          v11 + s * (v21 - v11) + t * (v12 - v11),
+                          a11 + s * (a21 - a11) + t * (a12 - a11));
+    } else {
+        //std::cout << p.x << "|" << p.y << " (" << s << "|" << t << "): " <<h11 << "," << h21 << "," << h22 << "," << h12 << " => " << h22 + (1-s) * (h12 - h22) + (1-t) * (h21 - h22) << std::endl;
+        return WaterPoint(h22 + (1-s) * (h12 - h22) + (1-t) * (h21 - h22),
+                          v22 + (1-s) * (v12 - v22) + (1-t) * (v21 - v22),
+                          a22 + (1-s) * (a12 - a22) + (1-t) * (a21 - a22));
+    }
+}
+
 void Water::splash(const Map::Pos &p, fixed speed) {
     point(p).velocity += speed;  
 }

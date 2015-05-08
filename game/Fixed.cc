@@ -6,7 +6,7 @@ fixed sqrt(fixed s) {
 
     // Newton's method I guess
      
-    fixed accuracy = fixed(1) / fixed(1 << 8);
+    fixed accuracy = fixed(1) / fixed(1 << 10);
 
     fixed x = s / 2; 
     fixed e;
@@ -24,6 +24,7 @@ fixed sqrt(fixed s) {
 }
 
 fvec3 normalize(const fvec3 &v) {
+    std::cout << v << " has length " << length(v) << std::endl;
     return v / length(v);
 }
 
@@ -85,4 +86,19 @@ glm::quat fixedToFloat(const fquat &q) {
 
 glm::ivec3 fixedToInt(const fvec3 &v) {
     return glm::ivec3(v.x.toInt(), v.y.toInt(), v.z.toInt());
+}
+
+std::ostream& operator<<(std::ostream& os, fixed f) {
+    return os << f.toFloat();
+}
+
+std::ostream& operator<<(std::ostream& os, const fvec2& v) {
+    return os << "fvec2(" << v.x << ", "
+                          << v.y << ")";
+}
+
+std::ostream& operator<<(std::ostream& os, const fvec3& v) {
+    return os << "fvec3(" << v.x << ", "
+                          << v.y << ", "
+                          << v.z << ")";
 }

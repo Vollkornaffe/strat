@@ -50,6 +50,7 @@ struct PhysicsState : entityx::Component<PhysicsState> {
     }
 
     void recalculate();
+    void applyForce(const fvec3 &force, const fvec3 &point);
 };
 
 struct Ship : entityx::Component<Ship> {
