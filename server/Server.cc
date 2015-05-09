@@ -127,7 +127,7 @@ int main() {
     settings.mapW = 256;
     settings.mapH = 256;
     settings.heightLimit = 8;
-    settings.tickLengthMs = 50;
+    settings.tickLengthMs = 100;
 
     // Wait for this number of players before starting the game
     size_t numWaitPlayers = 1;

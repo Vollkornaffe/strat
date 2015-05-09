@@ -111,7 +111,7 @@ fixed SimState::getTickLengthS() const {
 entityx::Entity SimState::addShip(PlayerId owner, const fvec2 &position) {
     entityx::Entity entity = entities.create();
     entity.assign<GameObject>(owner, ++entityCounter);
-    entity.assign<PhysicsState>(fvec3(6, 4, 2), fixed(100), fixed(100), fvec3(position, fixed(110)));
+    entity.assign<PhysicsState>(fvec3(6, 4, 2), fixed(100), fixed(100), fvec3(position, fixed(100)));
     entity.assign<Ship>();
 
     return entity;

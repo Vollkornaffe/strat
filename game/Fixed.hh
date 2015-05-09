@@ -1,6 +1,8 @@
 #ifndef STRAT_GAME_FIXED_HPP
 #define STRAT_GAME_FIXED_HPP
 
+#include <iostream>
+
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -34,5 +36,9 @@ glm::vec3 fixedToFloat(const fvec3 &);
 glm::quat fixedToFloat(const fquat &);
 
 glm::ivec3 fixedToInt(const fvec3 &);
+
+std::ostream& operator<<(std::ostream&, fixed);
+std::ostream& operator<<(std::ostream&, const fvec2 &);
+std::ostream& operator<<(std::ostream&, const fvec3 &);
 
 #endif

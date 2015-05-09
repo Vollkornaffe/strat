@@ -14,6 +14,10 @@ struct WaterPoint {
     WaterPoint()
         : height(100), velocity(), acceleration() {
     }
+
+    WaterPoint(fixed height, fixed velocity, fixed acceleration)
+        : height(height), velocity(velocity), acceleration(acceleration) {
+    }
 };
 
 struct Water {
@@ -38,6 +42,8 @@ struct Water {
     const WaterPoint &point(const Map::Pos &p) const {
         return point(p.x, p.y);
     }
+
+    WaterPoint fpoint(const fvec2 &p) const;
 
     void splash(const Map::Pos &, fixed speed);
 
