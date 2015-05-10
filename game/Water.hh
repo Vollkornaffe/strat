@@ -25,6 +25,9 @@ struct WaterPoint {
 struct Water {
     Water(const Map &);
 
+    size_t getSizeX() const { return sizeX; }
+    size_t getSizeY() const { return sizeY; }
+
     const WaterPoint &point(size_t x, size_t y) const {
         assert(x < sizeX);
         assert(y < sizeY);

@@ -17,7 +17,8 @@ struct Map;
 struct InterpState;
 
 struct RenderShipSystem {
-    RenderShipSystem(const Map &map, const Input &input, opengl::TextureManager &textures)
+    RenderShipSystem(const Map &map, const Input &input,
+                     opengl::TextureManager &textures)
         : map(map), input(input),
           shipObj("data/stupidShip/stupidShip2.obj", textures) {
     }
