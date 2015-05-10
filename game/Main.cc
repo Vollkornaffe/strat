@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
                 PROFILE(objects);
                 renderShipSystem.render(sim.getEntities(), interp);
 
-                debugRenderPhysicsStateSystem.render(sim.getEntities());
+                //debugRenderPhysicsStateSystem.render(sim.getEntities(), interp);
             }
 
             {

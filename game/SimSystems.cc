@@ -9,6 +9,12 @@ static bool waterInteraction(SimState &state, PhysicsState::Handle physicsState,
     const Map &map(state.getMap());
     Water &water(state.getWater());
 
+    if (shipPoint.x < 0 || shipPoint.x > water.getSizeX()-1 ||
+        shipPoint.y < 0 || shipPoint.y > water.getSizeY()-1) {
+        physicsState->applyForce(tickLengthS * fvec3(0, 0, fixed(500)), shipPoint);
+        return false;
+    }
+
     glm::ivec3 gridPosition(fixedToInt(shipPoint));
     const GridPoint &gridPoint(map.point(Map::Pos(gridPosition)));
     WaterPoint &waterPoint(water.point(Map::Pos(gridPosition)));
@@ -42,7 +48,7 @@ static bool waterInteraction(SimState &state, PhysicsState::Handle physicsState,
 
         // ... and decrease momentum
         //physicsState->momentum.z -= fixed(10)/fixed(50) * physicsState->momentum.z;
-        //physicsState->applyForce(fvec3(0, 0, -fixed(10)/fixed(50) * physicsState->momentum.z), shipPoint);
+        physicsState->applyForce(fvec3(0, 0, -fixed(10)/fixed(50) * tickLengthS * physicsState->momentum.z), shipPoint);
     }
 
     return delta <= 0;
@@ -57,8 +63,8 @@ void PhysicsSystem::tick(SimState &state, fixed tickLengthS) {
     PhysicsState::Handle physicsState;
     for (auto entity : state.entities.entities_with_components(physicsState)) {
         // Friction
-        physicsState->momentum -= tickLengthS * fixed(1)/fixed(5) * physicsState->momentum;
-        physicsState->angularMomentum -= tickLengthS * fixed(4)/fixed(5) * physicsState->angularMomentum;
+        physicsState->momentum -= tickLengthS * fixed(2)/fixed(5) * physicsState->momentum;
+        physicsState->angularMomentum -= tickLengthS * fixed(9)/fixed(10) * physicsState->angularMomentum;
        
         // Float on water, gravitation
         glm::ivec3 gridPosition(fixedToInt(physicsState->position));
@@ -99,7 +105,7 @@ void PhysicsSystem::tick(SimState &state, fixed tickLengthS) {
 
         fixed waterSpeed(sqrt(physicsState->velocity.x * physicsState->velocity.x + physicsState->velocity.y * physicsState->velocity.y));
         if (inWater && waterSpeed > fixed(1)/fixed(10)) {
-            waterPoint.velocity += fixed(1) / fixed(20) * inWater * (waterSpeed > 3 ? 3 : waterSpeed) * tickLengthS;
+            waterPoint.velocity += fixed(1)/fixed(3) * inWater * (waterSpeed > 3 ? 3 : waterSpeed) * tickLengthS;
         }
 
         // Clip to map size

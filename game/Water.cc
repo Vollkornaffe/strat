@@ -7,9 +7,9 @@ Water::Water(const Map &map)
              std::vector<WaterPoint>(sizeX * sizeY)},
       newBuffer(&points[0]),
       oldBuffer(&points[1]),
-      numPasses(8),
-      dampening(fixed(4) / fixed(160)),
-      tension(fixed(1) / fixed(10)),
+      numPasses(4),
+      dampening(fixed(10) / fixed(160)),
+      tension(fixed(3) / fixed(10)),
       spread(fixed(3) / fixed(4)) {
 }
 

@@ -20,7 +20,7 @@ struct RenderShipSystem {
     RenderShipSystem(const Map &map, const Input &input,
                      opengl::TextureManager &textures)
         : map(map), input(input),
-          shipObj("data/stupidShip/stupidShip2.obj", textures) {
+          shipObj("data/stupidShip/stupidShip3.obj", textures) {
     }
 
     void render(entityx::EntityManager &entities, const InterpState &);
@@ -36,7 +36,7 @@ struct DebugRenderPhysicsStateSystem {
     DebugRenderPhysicsStateSystem() {
     }
 
-    void render(entityx::EntityManager &entities);
+    void render(entityx::EntityManager &entities, const InterpState &);
 };
 
 void setupGraphics(const Config &, const Input::View &);

@@ -9,7 +9,7 @@ varying float shininess;
 void main()
 {
     const vec3 lightColor = vec3(1, 1, 1);
-    const vec3 globalAmbient = vec3(0.2, 0.2, 0.2);
+    const vec3 globalAmbient = vec3(0.1, 0.1, 0.1);
 
     // Position in eye space
     vec3 P = vec3(eposition);

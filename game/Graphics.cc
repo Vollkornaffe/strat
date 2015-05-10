@@ -92,7 +92,8 @@ void printOglError(const char *file, int line) {
     }
 }
 
-void RenderShipSystem::render(entityx::EntityManager &entities, const InterpState &interp) {
+void RenderShipSystem::render(entityx::EntityManager &entities,
+                              const InterpState &interp) {
     glDisable(GL_CULL_FACE);
     glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
 
@@ -162,13 +163,23 @@ void RenderShipSystem::render(entityx::EntityManager &entities, const InterpStat
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void DebugRenderPhysicsStateSystem::render(entityx::EntityManager &entities) {
+void DebugRenderPhysicsStateSystem::render(entityx::EntityManager &entities,
+                                           const InterpState &interp) {
+    PreviousPhysicsState::Handle previousPhysicsState;
     PhysicsState::Handle physicsState;
 
     for (entityx::Entity entity :
-         entities.entities_with_components(physicsState)) {
+         entities.entities_with_components(previousPhysicsState, physicsState)) {
+        PhysicsState interpPhysicsState(
+                PhysicsState::interpolate(previousPhysicsState->state,
+                                          *physicsState.get(),
+                                          fixed::fromFloat(interp.getT())));
+
         glPushMatrix();
-        glTranslatef(physicsState->position.x.toFloat(), physicsState->position.y.toFloat(), physicsState->position.z.toFloat());
+
+        glTranslatef(interpPhysicsState.position.x.toFloat(),
+                     interpPhysicsState.position.y.toFloat(),
+                     interpPhysicsState.position.z.toFloat());
 
         quat orientation(fixedToFloat(physicsState->orientation));
         mat4 orientationMatrix(glm::mat4_cast(orientation));
