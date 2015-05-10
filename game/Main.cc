@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
     Input input(config, window, client, sim.getEvents(), terrainMesh);
     const Input::View &view(input.getView());
 
-    RenderShipSystem renderShipSystem(map, input);
+    RenderShipSystem renderShipSystem(map, input, textures);
 
     size_t frames = 0, fps = 0;
     double lastFrameTime = glfwGetTime();

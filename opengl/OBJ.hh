@@ -48,7 +48,8 @@ struct OBJ {
 private:
     typedef std::map<std::string, Material> MaterialLib;
 
-    MaterialLib loadMaterialLib(std::string const& filename, TextureManager&);
+    MaterialLib loadMaterialLib(std::string const& path,
+                                std::string const& filename, TextureManager&);
 
     void load(std::string const& filename, TextureManager&);
 };

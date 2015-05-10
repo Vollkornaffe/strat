@@ -40,17 +40,25 @@ OBJ::OBJ(std::string const& filename, TextureManager& textures) {
     load(filename, textures); 
 }
 
-OBJ::MaterialLib OBJ::loadMaterialLib(std::string const& filename,
+OBJ::MaterialLib OBJ::loadMaterialLib(std::string const& path,
+                                      std::string const& filename,
                                       TextureManager& textures) {
     auto error = [&] (std::string const& error) {
         throw std::runtime_error("Error while loading MTL file \"" +
                                  filename + "\": " + error);
     };
 
+    if (filename.empty()) error("Empty filename");
+
     std::ifstream file(filename, std::ifstream::in);
 
-    if (!file.good())
-        error("Cannot open file \"" + filename + "\" for reading");
+    if (!file.good()) {
+        // Try relative paths
+        file.open(path + filename, std::ifstream::in);
+
+        if (!file.good())
+            error("Cannot open file \"" + filename + "\" for reading");
+    }
 
     MaterialLib mtllib;
     MaterialLib::iterator material = mtllib.end();
@@ -101,7 +109,6 @@ OBJ::MaterialLib OBJ::loadMaterialLib(std::string const& filename,
 void OBJ::load(std::string const& filename, TextureManager& textures) {
     int lineNumber = 0;
     auto error = [&] (std::string const& error) {
-            std::cout << lineNumber << std::endl;
         throw std::runtime_error("Error while loading OBJ file \"" +
                                  filename + "\": " + error);
     };
@@ -110,6 +117,20 @@ void OBJ::load(std::string const& filename, TextureManager& textures) {
 
     if (!file.good())
         error("Cannot open file \"" + filename + "\" for reading");
+
+    // Shoddily determine the folder that `filename' is in,
+    // for use by loadMaterialLib
+    std::string path;
+    {
+        // Search for the first occurence of a / or \ from the right side
+        int i;
+        for (i = filename.size()-1; i > 0; i--) { 
+            if (filename[i] == '/' || filename[i] == '\\')
+                break;
+        }
+
+        path = filename.substr(0, i+1);
+    }
 
     // Given by the .mtl file specified by "mtllib".
     MaterialLib mtllib;
@@ -209,9 +230,9 @@ void OBJ::load(std::string const& filename, TextureManager& textures) {
         else if (line[0] == 'f') {
             // I feel the need to defend myself for writing this code
 
-            size_t v1, vt1, vn1,
-                   v2, vt2, vn2,
-                   v3, vt3, vn3;
+            int v1, vt1, vn1,
+                v2, vt2, vn2,
+                v3, vt3, vn3;
             if (sscanf(line.c_str(), "f %d/%d/%d %d/%d/%d %d/%d/%d",
                         &v1, &vt1, &vn1,
                         &v2, &vt2, &vn2,
@@ -275,7 +296,7 @@ void OBJ::load(std::string const& filename, TextureManager& textures) {
             if (!mtllib.empty())
                 error("More than one mtllib specified");
 
-            mtllib = loadMaterialLib(line.substr(7), textures);
+            mtllib = loadMaterialLib(path, line.substr(7), textures);
         }
     }
 

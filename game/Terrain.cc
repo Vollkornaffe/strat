@@ -223,7 +223,7 @@ bool TerrainPatch::intersectWithRay(const Ray &ray, Map::Pos &point,
 
 void TerrainPatch::drawWater() {
     // Water test
-    glShadeModel(GL_FLAT);
+    glShadeModel(GL_SMOOTH);
     glBegin(GL_TRIANGLES);
     for (size_t x = position.x; x < position.x + size.x; x++) {
         for (size_t y = position.y; y < position.y + size.y; y++) {

@@ -24,7 +24,6 @@ fixed sqrt(fixed s) {
 }
 
 fvec3 normalize(const fvec3 &v) {
-    std::cout << v << " has length " << length(v) << std::endl;
     return v / length(v);
 }
 

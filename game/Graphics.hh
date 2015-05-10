@@ -17,14 +17,18 @@ struct Map;
 struct InterpState;
 
 struct RenderShipSystem {
-    RenderShipSystem(const Map &map, const Input &input)
-        : map(map), input(input) {}
+    RenderShipSystem(const Map &map, const Input &input, opengl::TextureManager &textures)
+        : map(map), input(input),
+          shipObj("data/stupidShip/stupidShip2.obj", textures) {
+    }
 
     void render(entityx::EntityManager &entities);
 
 private:
     const Map &map;
     const Input &input;
+
+    opengl::OBJ shipObj;
 };
 
 void setupGraphics(const Config &, const Input::View &);

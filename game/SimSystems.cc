@@ -22,9 +22,9 @@ static bool waterInteraction(SimState &state, PhysicsState::Handle physicsState,
     // Float up as soon as partially under water
     if (delta < 0) { 
         //physicsState->momentum.z -= delta * fixed(80);
-        std::cout << "applying force " << -delta << " at point " << shipPoint << std::endl;
-        physicsState->applyForce(fvec3(0, 0, -delta * fixed(50)), shipPoint);
-        std::cout << "-> " << physicsState->angularMomentum << std::endl;
+        //std::cout << "applying force " << -delta << " at point " << shipPoint << std::endl;
+        physicsState->applyForce(fvec3(0, 0, -delta * fixed(25)), shipPoint);
+        //std::cout << "-> " << physicsState->angularMomentum << std::endl;
     }
 
 
@@ -72,8 +72,8 @@ void PhysicsSystem::tick(SimState &state, fixed tickLengthS) {
         fvec3 normalAxis(normalize(cross(shipAxis, orthAxis)));
         fvec3 base = physicsState->position - (fixed(physicsState->size.z) / 2) * normalAxis;
 
-        std::cout << "SHIP AXIS: " << shipAxis << ", ORTH AXIS: " << orthAxis << std::endl;
-        std::cout << "NORMAL: " << normalAxis << std::endl;
+        //std::cout << "SHIP AXIS: " << shipAxis << ", ORTH AXIS: " << orthAxis << std::endl;
+        //std::cout << "NORMAL: " << normalAxis << std::endl;
 
         physicsState->applyForce(fvec3(0, 0, -25),
                 physicsState->position - (fixed(physicsState->size.x) / 4) * shipAxis
