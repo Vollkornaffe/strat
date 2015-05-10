@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 
 struct TerrainPatch;
+struct InterpState;
 
 // Draws the map
 struct TerrainMesh {
@@ -16,7 +17,7 @@ struct TerrainMesh {
 
     void update();
     void draw();
-    void drawWater();
+    void drawWater(const InterpState &interp);
 
     bool intersectWithRay(const Ray &ray, Map::Pos &point, float &t) const;
 

@@ -1,6 +1,7 @@
 #include "Terrain.hh"
 
 #include "Math.hh"
+#include "InterpState.hh"
 #include "util/Profiling.hh"
 
 #include <limits>
@@ -34,7 +35,7 @@ struct TerrainPatch {
     void init();
     void update(bool initial = false);
     void draw();
-    void drawWater();
+    void drawWater(const InterpState &interp);
 
     bool intersectWithRay(const Ray &ray, Map::Pos &point, float &t) const;
 
@@ -221,7 +222,7 @@ bool TerrainPatch::intersectWithRay(const Ray &ray, Map::Pos &point,
 #undef ROUND
 }
 
-void TerrainPatch::drawWater() {
+void TerrainPatch::drawWater(const InterpState &interp) {
     // Water test
     glShadeModel(GL_SMOOTH);
     glBegin(GL_TRIANGLES);
@@ -229,7 +230,8 @@ void TerrainPatch::drawWater() {
         for (size_t y = position.y; y < position.y + size.y; y++) {
             glm::vec3 a(POINT(x,y)), b(POINT(x+1,y)),
                       c(POINT(x,y+1)), d(POINT(x+1,y+1));
-#define WHEIGHT(x,y) water.point(x,y).height.toFloat();
+//#define WHEIGHT(x,y) water.point(x,y).height.toFloat();
+#define WHEIGHT(x,y) lerp(water.point(x,y).previousHeight.toFloat(), water.point(x,y).height.toFloat(), interp.getT())
             a.z += WHEIGHT(x,y);
             b.z += WHEIGHT(x+1,y);
             c.z += WHEIGHT(x,y+1);
@@ -306,9 +308,9 @@ void TerrainMesh::draw() {
         patch->draw();
 }
 
-void TerrainMesh::drawWater() {
+void TerrainMesh::drawWater(const InterpState &interp) {
     for (auto patch : patches)
-        patch->drawWater();
+        patch->drawWater(interp);
 }
 
 bool TerrainMesh::intersectWithRay(const Ray &ray, Map::Pos &point, float &tMin) const {

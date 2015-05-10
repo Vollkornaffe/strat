@@ -72,6 +72,7 @@ private:
 
     fixed time;
 
+    CopyPhysicsStateSystem copyPhysicsStateSystem;
     PhysicsSystem physicsSystem;
     ShipSystem shipSystem;
 

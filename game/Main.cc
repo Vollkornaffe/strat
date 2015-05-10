@@ -80,6 +80,7 @@ int main(int argc, char *argv[]) {
     const Input::View &view(input.getView());
 
     RenderShipSystem renderShipSystem(map, input, textures);
+    DebugRenderPhysicsStateSystem debugRenderPhysicsStateSystem;
 
     size_t frames = 0, fps = 0;
     double lastFrameTime = glfwGetTime();
@@ -98,16 +99,16 @@ int main(int argc, char *argv[]) {
             PROFILE(update);
 
             {
-                PROFILE(input);
-                input.update(dt);
-            }
-            {
                 PROFILE(client);
                 client.update(dt);
             }
             {
                 PROFILE(terrain);
                 terrainMesh.update();
+            }
+            {
+                PROFILE(input);
+                input.update(dt);
             }
         }
 
@@ -130,12 +131,14 @@ int main(int argc, char *argv[]) {
 
             {
                 PROFILE(water);
-                terrainMesh.drawWater();
+                terrainMesh.drawWater(interp);
             }
         
             {
                 PROFILE(objects);
-                renderShipSystem.render(sim.getEntities());
+                renderShipSystem.render(sim.getEntities(), interp);
+
+                debugRenderPhysicsStateSystem.render(sim.getEntities());
             }
 
             {

@@ -9,8 +9,8 @@
 #define M_PI 3.14159265358979323846264338327
 #endif
 
-template <typename T>
-T lerp(const T &a, const T &b, const T &t) {
+template <typename T, typename U>
+T lerp(const T &a, const T &b, const U &t) {
     return (1 - t) * a + t * b;
 }
 

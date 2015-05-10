@@ -11,12 +11,14 @@ struct WaterPoint {
     fixed height, velocity;
     fixed acceleration; // acceleration that was applied in the last water tick
 
+    fixed previousHeight; // can be used for interpolation
+
     WaterPoint()
-        : height(100), velocity(), acceleration() {
+        : height(100), velocity(), acceleration(), previousHeight(height) {
     }
 
     WaterPoint(fixed height, fixed velocity, fixed acceleration)
-        : height(height), velocity(velocity), acceleration(acceleration) {
+        : height(height), velocity(velocity), acceleration(acceleration), previousHeight(height) {
     }
 };
 

@@ -36,7 +36,6 @@ struct PhysicsState : entityx::Component<PhysicsState> {
     fvec3 momentum;
 
     fvec3 velocity;
-    fvec3 force;
 
     // Rotation
     fquat orientation;
@@ -45,13 +44,25 @@ struct PhysicsState : entityx::Component<PhysicsState> {
     fquat spin;
     fvec3 angularVelocity;
 
+    PhysicsState() {
+    }
+
     PhysicsState(fvec3 size, fixed mass, fixed inertia, fvec3 position)
         : size(size), mass(mass), inertia(inertia), position(position) {
     }
 
     void recalculate();
     void applyForce(const fvec3 &force, const fvec3 &point);
+
+    static PhysicsState interpolate(const PhysicsState &, const PhysicsState &, fixed);
 };
+
+template<typename T>
+struct PreviousState : entityx::Component<PreviousState<T>> {
+    T state;
+};
+
+typedef PreviousState<PhysicsState> PreviousPhysicsState;
 
 struct Ship : entityx::Component<Ship> {
     fixed rudder;

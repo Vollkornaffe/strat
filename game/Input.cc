@@ -93,8 +93,52 @@ void Input::update(double dt) {
         mouseRay = calculateViewRay(mx, my, width, height, view);
     }
 
-    scrollView(dt);
+    //scrollView(dt);
+
+    // Rotate view
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        view.angle += dt * 2.0f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        view.angle -= dt * 2.0f;
+    }
+
+    // Zoom in and out
+    if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS
+        && view.distance > 3.0f) {
+        view.distance -= dt * 35.0f;
+        if (view.distance < 3.0f)
+            view.distance = 3.0f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS) {
+        view.distance += dt * 35.0f;
+    }
+
+    // Focus view on the player's boat... if the player has any
+    PreviousPhysicsState::Handle previousPlayerPhysicsState;
+    PhysicsState::Handle playerPhysicsState;
+
+    {
+        GameObject::Handle gameObject;
+
+        for (auto entity : sim.getEntities().entities_with_components(gameObject, previousPlayerPhysicsState, playerPhysicsState)) {
+            if (gameObject->getOwner() == client.getPlayerId())
+                break;
+        }
+    }
+
+    PhysicsState interpPlayerPhysicsState(
+        PhysicsState::interpolate(previousPlayerPhysicsState->state,
+                                  *playerPhysicsState.get(),
+                                  fixed::fromFloat(client.getInterp().getT()))); 
+
+    view.target = fixedToFloat(interpPlayerPhysicsState.position);
+    //scrollView(dt);
+
+    vec3 origin_camera(0, -5.0f, view.distance);
+    view.position = view.target + rotateZ(origin_camera, view.angle);
     
+    // Calculate projection and camera matrices
     {
         view.projectionMat = perspective<float>(M_PI / 2.0f, width / (float)height,
                                                 1.0f, 5000.0f);                                          
@@ -124,30 +168,6 @@ void Input::scrollView(double dt) {
         && view.target.x < map.getSizeX()) {
         tryScroll(-orthDirection * moveDelta);
     }
-    if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS
-        && view.distance > 3.0f) {
-        view.distance -= dt * 35.0f;
-        if (view.distance < 3.0f)
-            view.distance = 3.0f;
-    }
-    if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS) {
-        view.distance += dt * 35.0f;
-    }
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        view.angle += dt * 2.0f;
-    }
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        view.angle -= dt * 2.0f;
-    }
-
-    view.position.x = view.target.x;
-    view.position.y = view.target.y - 10.0f;
-    view.position.z = view.distance;
-
-    if (view.position.y > 0)
-        view.position.z += map.point(view.position.x, view.position.y).height;
-    else
-        view.position.z += map.point(view.target.x, view.target.y).height;
 
     vec3 origin_camera(0, -40.0f, view.distance);
     view.position = view.target + rotateZ(origin_camera, view.angle);
@@ -173,11 +193,8 @@ entityx::Entity Input::pickEntity() {
     Building::Handle building;
     for (auto entity : sim.getEntities().entities_with_components(gameObject, building)) {
         AABB aabb(vec3(building->getPosition()), //- vec3(0.5, 0.5, 0),
-                  vec3(building->getPosition() + building->getTypeInfo().size));
-        float d;
-
         if (aabb.intersectWithRay(mouseRay, 1.0f, 5000.0f, &d)
-            && (!minEntity || d < minD)) {
+            lause Normal Form
             minEntity = entity;
         }
     }*/

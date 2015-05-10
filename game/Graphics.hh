@@ -22,13 +22,20 @@ struct RenderShipSystem {
           shipObj("data/stupidShip/stupidShip2.obj", textures) {
     }
 
-    void render(entityx::EntityManager &entities);
+    void render(entityx::EntityManager &entities, const InterpState &);
 
 private:
     const Map &map;
     const Input &input;
 
     opengl::OBJ shipObj;
+};
+
+struct DebugRenderPhysicsStateSystem {
+    DebugRenderPhysicsStateSystem() {
+    }
+
+    void render(entityx::EntityManager &entities);
 };
 
 void setupGraphics(const Config &, const Input::View &);

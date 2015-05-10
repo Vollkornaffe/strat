@@ -92,9 +92,9 @@ void printOglError(const char *file, int line) {
     }
 }
 
-void RenderShipSystem::render(entityx::EntityManager &entities) {
+void RenderShipSystem::render(entityx::EntityManager &entities, const InterpState &interp) {
     glDisable(GL_CULL_FACE);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
 
     for (auto &part : shipObj.parts) {
         glEnableClientState(GL_VERTEX_ARRAY);
@@ -107,29 +107,41 @@ void RenderShipSystem::render(entityx::EntityManager &entities) {
         glNormalPointer(GL_FLOAT, sizeof(GLfloat)*3, nullptr);
 
         GameObject::Handle gameObject;
+        PreviousPhysicsState::Handle previousPhysicsState;
         PhysicsState::Handle physicsState;
         Ship::Handle ship;
 
         for (entityx::Entity entity :
-             entities.entities_with_components(gameObject, physicsState, ship)) {
+             entities.entities_with_components(gameObject, previousPhysicsState, physicsState, ship)) {
             assert(gameObject->getOwner() > 0 && gameObject->getOwner()-1 < 4);
             vec3 color(playerColors[gameObject->getOwner()-1]); //TODO
 
-            glPushMatrix();
-            glTranslatef(physicsState->position.x.toFloat(), physicsState->position.y.toFloat(), physicsState->position.z.toFloat());
+            PhysicsState interpPhysicsState(
+                    PhysicsState::interpolate(previousPhysicsState->state,
+                                              *physicsState.get(),
+                                              fixed::fromFloat(interp.getT())));
+            //std::cout << "[" << previousPhysicsState->state.position << " => " << physicsState->position << "] @ " << interp.getT() << " / " << (1-interp.getT()) << ": " << interpPhysicsState.position << std::endl;
 
-            quat orientation(fixedToFloat(physicsState->orientation));
+            //interpPhysicsState = *physicsState.get();
+
+            glPushMatrix();
+            glTranslatef(interpPhysicsState.position.x.toFloat(),
+                         interpPhysicsState.position.y.toFloat(),
+                         interpPhysicsState.position.z.toFloat());
+
+            quat orientation(fixedToFloat(interpPhysicsState.orientation));
             mat4 orientationMatrix(glm::mat4_cast(orientation));
             glMultMatrixf(&orientationMatrix[0][0]);
 
-            glScalef(3.0f, 3.0f, 3.0f);
+            //glScalef(3.0f, 3.0f, 3.0f);
+            //glTranslatef(1.0f, 0.0f, 0.0f);
+
             glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
             glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
 
             //glScalef(physicsState->size.x.toFloat(), physicsState->size.y.toFloat(), physicsState->size.z.toFloat());
             //glColor4f(color.x, color.y, color.z, 1.0f);
 
-            //glTranslatef(-0.5f, -0.5f, -0.5f);
 
             glDrawArrays(GL_TRIANGLES, 0, part.vertices->getNumElements());
 
@@ -147,6 +159,35 @@ void RenderShipSystem::render(entityx::EntityManager &entities) {
     }
 
     glEnable(GL_CULL_FACE);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void DebugRenderPhysicsStateSystem::render(entityx::EntityManager &entities) {
+    PhysicsState::Handle physicsState;
+
+    for (entityx::Entity entity :
+         entities.entities_with_components(physicsState)) {
+        glPushMatrix();
+        glTranslatef(physicsState->position.x.toFloat(), physicsState->position.y.toFloat(), physicsState->position.z.toFloat());
+
+        quat orientation(fixedToFloat(physicsState->orientation));
+        mat4 orientationMatrix(glm::mat4_cast(orientation));
+        glMultMatrixf(&orientationMatrix[0][0]);
+
+        glScalef(physicsState->size.x.toFloat(), physicsState->size.y.toFloat(), physicsState->size.z.toFloat());
+
+        glTranslatef(-0.5f, -0.5f, -0.5f);
+
+        glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+        glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+
+        glBegin(GL_LINES);
+        glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+        drawCube();
+        glEnd();
+
+        glPopMatrix();
+    }
 }
 
 void setupGraphics(const Config &config, const Input::View &view) {

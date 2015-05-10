@@ -57,8 +57,11 @@ void Water::splash(const Map::Pos &p, fixed speed) {
 }
 
 void Water::tick(fixed tickLengthS) {
-    for (auto &p : *oldBuffer)
+    for (auto &p : *oldBuffer) {
+        p.previousHeight = p.height;
+
         spring(tickLengthS, p);
+    }
 
     /*fixed rain = fixed(5) / fixed(1);
     point(32,32).velocity += rain;
@@ -79,10 +82,10 @@ void Water::tick(fixed tickLengthS) {
                 if (y > 0) propagate(tickLengthS, x, y, x, y-1);
                 if (y < sizeY-1) propagate(tickLengthS, x, y, x, y+1);
 
-                /*if (x > 0 && y > 0) propagate(tickLengthS, x, y, x-1, y-1);
+                if (x > 0 && y > 0) propagate(tickLengthS, x, y, x-1, y-1);
                 if (x < sizeX-1 && y < sizeY-1) propagate(tickLengthS, x, y, x+1, y+1);
                 if (x < sizeX-1 && y > 0) propagate(tickLengthS, x, y, x+1, y-1);
-                if (x > 0 && y < sizeY-1) propagate(tickLengthS, x, y, x-1, y+1);*/
+                if (x > 0 && y < sizeY-1) propagate(tickLengthS, x, y, x-1, y+1);
             }
         }
 

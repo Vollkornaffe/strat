@@ -5,7 +5,7 @@
 
 #include "util/Print.hh"
 
-static bool waterInteraction(SimState &state, PhysicsState::Handle physicsState, const fvec3 &shipPoint) {
+static bool waterInteraction(SimState &state, PhysicsState::Handle physicsState, const fvec3 &shipPoint, fixed tickLengthS) {
     const Map &map(state.getMap());
     Water &water(state.getWater());
 
@@ -23,7 +23,7 @@ static bool waterInteraction(SimState &state, PhysicsState::Handle physicsState,
     if (delta < 0) { 
         //physicsState->momentum.z -= delta * fixed(80);
         //std::cout << "applying force " << -delta << " at point " << shipPoint << std::endl;
-        physicsState->applyForce(fvec3(0, 0, -delta * fixed(25)), shipPoint);
+        physicsState->applyForce(tickLengthS * fvec3(0, 0, -delta * fixed(1000)), shipPoint);
         //std::cout << "-> " << physicsState->angularMomentum << std::endl;
     }
 
@@ -57,8 +57,8 @@ void PhysicsSystem::tick(SimState &state, fixed tickLengthS) {
     PhysicsState::Handle physicsState;
     for (auto entity : state.entities.entities_with_components(physicsState)) {
         // Friction
-        physicsState->momentum -= fixed(1)/fixed(50) * physicsState->momentum;
-        physicsState->angularMomentum -= fixed(10)/fixed(50) * physicsState->angularMomentum;
+        physicsState->momentum -= tickLengthS * fixed(1)/fixed(5) * physicsState->momentum;
+        physicsState->angularMomentum -= tickLengthS * fixed(4)/fixed(5) * physicsState->angularMomentum;
        
         // Float on water, gravitation
         glm::ivec3 gridPosition(fixedToInt(physicsState->position));
@@ -75,19 +75,19 @@ void PhysicsSystem::tick(SimState &state, fixed tickLengthS) {
         //std::cout << "SHIP AXIS: " << shipAxis << ", ORTH AXIS: " << orthAxis << std::endl;
         //std::cout << "NORMAL: " << normalAxis << std::endl;
 
-        physicsState->applyForce(fvec3(0, 0, -25),
+        physicsState->applyForce(tickLengthS * fvec3(0, 0, -1000),
                 physicsState->position - (fixed(physicsState->size.x) / 4) * shipAxis
                                        - physicsState->size.z * normalAxis);
-        physicsState->applyForce(fvec3(0, 0, -25),
+        physicsState->applyForce(tickLengthS * fvec3(0, 0, -1000),
                 physicsState->position + (fixed(physicsState->size.x) / 4) * shipAxis
                                        - physicsState->size.z * normalAxis);
 
 
         size_t inWater = 0;
-        inWater += waterInteraction(state, physicsState, base + fixed(1)/fixed(2) * shipAxis * physicsState->size.x);
-        inWater += waterInteraction(state, physicsState, base - fixed(1)/fixed(2) * shipAxis * physicsState->size.x);
-        inWater += waterInteraction(state, physicsState, base + fixed(1)/fixed(2) * orthAxis * physicsState->size.y);
-        inWater += waterInteraction(state, physicsState, base - fixed(1)/fixed(2) * orthAxis * physicsState->size.y);
+        inWater += waterInteraction(state, physicsState, base + fixed(1)/fixed(2) * shipAxis * physicsState->size.x, tickLengthS);
+        inWater += waterInteraction(state, physicsState, base - fixed(1)/fixed(2) * shipAxis * physicsState->size.x, tickLengthS);
+        inWater += waterInteraction(state, physicsState, base + fixed(1)/fixed(2) * orthAxis * physicsState->size.y, tickLengthS);
+        inWater += waterInteraction(state, physicsState, base - fixed(1)/fixed(2) * orthAxis * physicsState->size.y, tickLengthS);
 
         // Move
         physicsState->recalculate();
@@ -99,7 +99,7 @@ void PhysicsSystem::tick(SimState &state, fixed tickLengthS) {
 
         fixed waterSpeed(sqrt(physicsState->velocity.x * physicsState->velocity.x + physicsState->velocity.y * physicsState->velocity.y));
         if (inWater && waterSpeed > fixed(1)/fixed(10)) {
-            waterPoint.velocity += fixed(1) / fixed(20) * inWater * (waterSpeed > 3 ? 3 : waterSpeed);
+            waterPoint.velocity += fixed(1) / fixed(20) * inWater * (waterSpeed > 3 ? 3 : waterSpeed) * tickLengthS;
         }
 
         // Clip to map size
@@ -159,6 +159,14 @@ void ShipSystem::accelerate(SimState &state, PlayerId player, Direction directio
             physicsState->angularMomentum.z += -fixed(100);
             //physicsState->applyForce(fvec3(0, 0, 100), base - fixed(1)/fixed(2) * orthAxis * physicsState->size.y);
             break;
+    }
+}
+
+void CopyPhysicsStateSystem::tick(SimState &state) {
+    PreviousPhysicsState::Handle previousPhysicsState;
+    PhysicsState::Handle physicsState;
+    for (auto entity : state.entities.entities_with_components(previousPhysicsState, physicsState)) {
+        previousPhysicsState->state = *physicsState.get();
     }
 }
 
