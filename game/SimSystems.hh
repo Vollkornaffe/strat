@@ -13,6 +13,10 @@ struct PhysicsSystem {
     void tick(SimState &, fixed tickLengthS);
 };
 
+struct CopyPhysicsStateSystem {
+    void tick(SimState &);
+};
+
 struct ShipSystem {
     void accelerate(SimState &, PlayerId, Direction);
     void tick(SimState &, fixed tickLengthS);

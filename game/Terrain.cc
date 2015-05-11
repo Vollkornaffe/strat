@@ -1,6 +1,7 @@
 #include "Terrain.hh"
 
 #include "Math.hh"
+#include "InterpState.hh"
 #include "util/Profiling.hh"
 
 #include <limits>
@@ -34,7 +35,7 @@ struct TerrainPatch {
     void init();
     void update(bool initial = false);
     void draw();
-    void drawWater();
+    void drawWater(const InterpState &interp);
 
     bool intersectWithRay(const Ray &ray, Map::Pos &point, float &t) const;
 
@@ -221,15 +222,27 @@ bool TerrainPatch::intersectWithRay(const Ray &ray, Map::Pos &point,
 #undef ROUND
 }
 
-void TerrainPatch::drawWater() {
+//#define WHEIGHT(x,y) water.point(x,y).height.toFloat();
+#define WHEIGHT(x,y) lerp(water.point(x,y).previousHeight.toFloat(), water.point(x,y).height.toFloat(), interp.getT())
+
+static void waterNormal(const Water &water, const InterpState &interp, size_t x, size_t y) {
+    float nx = (x > 0 && x < water.getSizeX()-1) ? (WHEIGHT(x-1,y) - WHEIGHT(x+1,y)) / 2.0f : 0.0f;
+    float ny = (y > 0 && y < water.getSizeY()-1) ? (WHEIGHT(x,y-1) - WHEIGHT(x,y+1)) / 2.0f : 0.0f;
+    float nz = 1.0f;
+
+    glm::vec3 n(glm::normalize(glm::vec3(nx, ny, nz)));
+
+    glNormal3f(n.x, n.y, n.z);
+}
+
+void TerrainPatch::drawWater(const InterpState &interp) {
     // Water test
-    glShadeModel(GL_FLAT);
+    glShadeModel(GL_SMOOTH);
     glBegin(GL_TRIANGLES);
     for (size_t x = position.x; x < position.x + size.x; x++) {
         for (size_t y = position.y; y < position.y + size.y; y++) {
             glm::vec3 a(POINT(x,y)), b(POINT(x+1,y)),
                       c(POINT(x,y+1)), d(POINT(x+1,y+1));
-#define WHEIGHT(x,y) water.point(x,y).height.toFloat();
             a.z += WHEIGHT(x,y);
             b.z += WHEIGHT(x+1,y);
             c.z += WHEIGHT(x,y+1);
@@ -242,23 +255,23 @@ void TerrainPatch::drawWater() {
             if (water.point(x+1,y+1).height > minw && water.point(x+1,y).height > minw && 
                 water.point(x,y).height > minw) {
                 glm::vec3 n1(glm::normalize(glm::cross(a - d, b - d)));
-                glNormal3f(n1.x, n1.y, n1.z);
+                //glNormal3f(n1.x, n1.y, n1.z);
 
                 glColor4f(0.0f, 0.2f, 0.5f, 1.0f);
-                glVertex3f(a.x, a.y, a.z);
-                glVertex3f(b.x, b.y, b.z);
-                glVertex3f(d.x, d.y, d.z);
+                waterNormal(water, interp, x,y); glVertex3f(a.x, a.y, a.z);
+                waterNormal(water, interp, x+1,y); glVertex3f(b.x, b.y, b.z);
+                waterNormal(water, interp, x+1,y+1); glVertex3f(d.x, d.y, d.z);
             }
             
             if (water.point(x,y).height > minw && water.point(x,y+1).height > minw && 
                 water.point(x+1,y+1).height > minw) {
                 glm::vec3 n2(glm::normalize(glm::cross(c - d, a - d)));
-                glNormal3f(n2.x, n2.y, n2.z);
+                //glNormal3f(n2.x, n2.y, n2.z);
 
                 glColor4f(0.0f, 0.2f, 0.5f, 1.0f);
-                glVertex3f(d.x, d.y, d.z);
-                glVertex3f(c.x, c.y, c.z);
-                glVertex3f(a.x, a.y, a.z);
+                waterNormal(water, interp, x+1,y+1); glVertex3f(d.x, d.y, d.z);
+                waterNormal(water, interp, x,y+1); glVertex3f(c.x, c.y, c.z);
+                waterNormal(water, interp, x,y); glVertex3f(a.x, a.y, a.z);
             }
 
         }
@@ -274,8 +287,10 @@ glm::vec3 TerrainPatch::color(size_t height) const {
     return glm::vec3(205.0f / 255, 133.0f / 255, 63.0f / 255);
 }
 
-TerrainMesh::TerrainMesh(const Map &map, const Water &water, const Map::Pos &patchSize)
-    : map(map), water(water) {
+TerrainMesh::TerrainMesh(const Map &map, const Water &water, const Map::Pos &patchSize,
+                         opengl::ProgramManager &programs)
+    : map(map), water(water),
+      waterProgram(programs.load("shaders/water-vertex.glsl", "shaders/water-pixel.glsl")) {
     assert(map.getSizeX() % patchSize.x == 0);
     assert(map.getSizeY() % patchSize.y == 0);
 
@@ -306,9 +321,13 @@ void TerrainMesh::draw() {
         patch->draw();
 }
 
-void TerrainMesh::drawWater() {
+void TerrainMesh::drawWater(const InterpState &interp) {
+    waterProgram->bind();
+
     for (auto patch : patches)
-        patch->drawWater();
+        patch->drawWater(interp);
+
+    waterProgram->unbind();
 }
 
 bool TerrainMesh::intersectWithRay(const Ray &ray, Map::Pos &point, float &tMin) const {

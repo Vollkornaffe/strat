@@ -66,7 +66,7 @@ static void drawCube() {
 }
 
 static vec3 bezier(const vec3 &a, const vec3 &b,
-                        float height, float t) {
+                   float height, float t) {
     // Bezier interpolation
     vec3 m((a.x + b.x) * 0.5,
            (a.y + b.y) * 0.5,
@@ -92,38 +92,113 @@ void printOglError(const char *file, int line) {
     }
 }
 
-void RenderShipSystem::render(entityx::EntityManager &entities) {
+void RenderShipSystem::render(entityx::EntityManager &entities,
+                              const InterpState &interp) {
     glDisable(GL_CULL_FACE);
+    glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
 
-    GameObject::Handle gameObject;
+    for (auto &part : shipObj.parts) {
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+
+        part.vertices->bind();
+        glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*3, nullptr);
+
+        part.normals->bind();
+        glNormalPointer(GL_FLOAT, sizeof(GLfloat)*3, nullptr);
+
+        GameObject::Handle gameObject;
+        PreviousPhysicsState::Handle previousPhysicsState;
+        PhysicsState::Handle physicsState;
+        Ship::Handle ship;
+
+        for (entityx::Entity entity :
+             entities.entities_with_components(gameObject, previousPhysicsState, physicsState, ship)) {
+            assert(gameObject->getOwner() > 0 && gameObject->getOwner()-1 < 4);
+            vec3 color(playerColors[gameObject->getOwner()-1]); //TODO
+
+            PhysicsState interpPhysicsState(
+                    PhysicsState::interpolate(previousPhysicsState->state,
+                                              *physicsState.get(),
+                                              fixed::fromFloat(interp.getT())));
+            //std::cout << "[" << previousPhysicsState->state.position << " => " << physicsState->position << "] @ " << interp.getT() << " / " << (1-interp.getT()) << ": " << interpPhysicsState.position << std::endl;
+
+            //interpPhysicsState = *physicsState.get();
+
+            glPushMatrix();
+            glTranslatef(interpPhysicsState.position.x.toFloat(),
+                         interpPhysicsState.position.y.toFloat(),
+                         interpPhysicsState.position.z.toFloat());
+
+            quat orientation(fixedToFloat(interpPhysicsState.orientation));
+            mat4 orientationMatrix(glm::mat4_cast(orientation));
+            glMultMatrixf(&orientationMatrix[0][0]);
+
+            //glScalef(3.0f, 3.0f, 3.0f);
+            //glTranslatef(1.0f, 0.0f, 0.0f);
+
+            glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+            glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+
+            //glScalef(physicsState->size.x.toFloat(), physicsState->size.y.toFloat(), physicsState->size.z.toFloat());
+            //glColor4f(color.x, color.y, color.z, 1.0f);
+
+
+            glDrawArrays(GL_TRIANGLES, 0, part.vertices->getNumElements());
+
+            //glBegin(GL_QUADS);
+            //drawCube();
+            //glEnd();
+        
+            glPopMatrix();
+
+            glDisableClientState(GL_VERTEX_ARRAY);
+            glDisableClientState(GL_NORMAL_ARRAY);
+
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+    }
+
+    glEnable(GL_CULL_FACE);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void DebugRenderPhysicsStateSystem::render(entityx::EntityManager &entities,
+                                           const InterpState &interp) {
+    PreviousPhysicsState::Handle previousPhysicsState;
     PhysicsState::Handle physicsState;
-    Ship::Handle ship;
 
     for (entityx::Entity entity :
-         entities.entities_with_components(gameObject, physicsState, ship)) {
-        assert(gameObject->getOwner() > 0 && gameObject->getOwner()-1 < 4);
-        vec3 color(playerColors[gameObject->getOwner()-1]); //TODO
+         entities.entities_with_components(previousPhysicsState, physicsState)) {
+        PhysicsState interpPhysicsState(
+                PhysicsState::interpolate(previousPhysicsState->state,
+                                          *physicsState.get(),
+                                          fixed::fromFloat(interp.getT())));
 
         glPushMatrix();
-        glTranslatef(physicsState->position.x.toFloat(), physicsState->position.y.toFloat(), physicsState->position.z.toFloat());
+
+        glTranslatef(interpPhysicsState.position.x.toFloat(),
+                     interpPhysicsState.position.y.toFloat(),
+                     interpPhysicsState.position.z.toFloat());
 
         quat orientation(fixedToFloat(physicsState->orientation));
         mat4 orientationMatrix(glm::mat4_cast(orientation));
         glMultMatrixf(&orientationMatrix[0][0]);
 
         glScalef(physicsState->size.x.toFloat(), physicsState->size.y.toFloat(), physicsState->size.z.toFloat());
-        glColor4f(color.x, color.y, color.z, 1.0f);
 
         glTranslatef(-0.5f, -0.5f, -0.5f);
 
-        glBegin(GL_QUADS);
+        glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+        glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+
+        glBegin(GL_LINES);
+        glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
         drawCube();
         glEnd();
-    
+
         glPopMatrix();
     }
-
-    glEnable(GL_CULL_FACE);
 }
 
 void setupGraphics(const Config &config, const Input::View &view) {
