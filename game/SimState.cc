@@ -29,9 +29,12 @@ SimState::SimState(const GameSettings &settings)
     for (int i = 0; i < 10; i++)
         water.tick(fixed(1)/fixed(10));*/
     size_t x1 = 120, y1 = 120; 
-    for (size_t x = x1; x <= x1 + 16; x++)
-        for (size_t y = y1; y <= y1 + 16; y++)
-                water.splash(Map::Pos(x, y), fixed(1) / (1 + sqrt(fixed(((x-128)*(x-128) + (y-128)*(y-128))))) * fixed(100));
+    for (size_t x = x1; x <= x1 + 16; x++) {
+        for (size_t y = y1; y <= y1 + 16; y++) {
+            fixed distance = sqrt(fixed(((x-128)*(x-128) + (y-128)*(y-128))));
+            water.splash(Map::Pos(x, y), fixed(1) / (1 + distance) * fixed(100));
+        }
+    }
 }
 
 bool SimState::isOrderValid(const Order &order) const {
@@ -49,8 +52,6 @@ bool SimState::isOrderValid(const Order &order) const {
 
 void SimState::runOrder(const Order &order) {
     assert(isOrderValid(order));
-
-    static int yolo = 0;
 
     switch (order.type) {
         case Order::ACCELERATE: {
@@ -112,7 +113,7 @@ entityx::Entity SimState::addShip(PlayerId owner, const fvec2 &position) {
     entityx::Entity entity = entities.create();
     entity.assign<GameObject>(owner, ++entityCounter);
     entity.assign<PreviousPhysicsState>();
-    entity.assign<PhysicsState>(fvec3(3, 1, 1), fixed(100), fixed(500), fvec3(position, fixed(100)));
+    entity.assign<PhysicsState>(fvec3(3,1,1), fixed(100), fixed(500), fvec3(position, fixed(100)));
     entity.assign<Ship>();
 
     return entity;
