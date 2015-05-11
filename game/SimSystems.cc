@@ -42,8 +42,8 @@ static bool waterInteraction(SimState &state, PhysicsState::Handle physicsState,
 
     // Cause ripples in the water when falling down and hitting water
     if (physicsState->velocity.z < 0 && delta <= 0) {
-        //fixed spread = fixed(1)/fixed(2);
-        //waterPoint.velocity -= -delta * spread * physicsState->velocity.z;
+        fixed spread = fixed(1)/fixed(10);
+        waterPoint.velocity -= spread * physicsState->velocity.z;
         //physicsState->momentum.z += -delta * spread * physicsState->velocity.z;
 
         // ... and decrease momentum
@@ -105,7 +105,7 @@ void PhysicsSystem::tick(SimState &state, fixed tickLengthS) {
 
         fixed waterSpeed(sqrt(physicsState->velocity.x * physicsState->velocity.x + physicsState->velocity.y * physicsState->velocity.y));
         if (inWater && waterSpeed > fixed(1)/fixed(10)) {
-            waterPoint.velocity += fixed(1)/fixed(3) * inWater * (waterSpeed > 3 ? 3 : waterSpeed) * tickLengthS;
+            waterPoint.velocity += fixed(2)/fixed(3) * inWater * (waterSpeed > 3 ? 3 : waterSpeed) * tickLengthS;
         }
 
         // Clip to map size
@@ -131,8 +131,6 @@ void PhysicsSystem::tick(SimState &state, fixed tickLengthS) {
         gridPosition = fixedToInt(physicsState->position);
         assert(gridPosition.x >= 0 && gridPosition.x < map.getSizeX());
         assert(gridPosition.y >= 0 && gridPosition.y < map.getSizeY());
-
-        //physicsState->position.z = fixed(gridPoint.height) + waterPoint.height;
     }
 }
 
@@ -147,23 +145,16 @@ void ShipSystem::accelerate(SimState &state, PlayerId player, Direction directio
 
     switch (direction) { 
         case DIRECTION_FORWARD:
-            //physicsState->momentum.x += 100.0f;
-            physicsState->momentum += fixed(100) * shipAxis;
-            //physicsState->applyForce(fvec3(0, 0, 100), base + fixed(1)/fixed(2) * shipAxis * physicsState->size.x);
+            physicsState->momentum += fixed(10) * shipAxis;
             break;
         case DIRECTION_BACKWARD:
-            //physicsState->momentum.x -= 100.0f;
-            physicsState->momentum -= fixed(100) * shipAxis;
-            //physicsState->applyForce(fvec3(0, 0, 100), base - fixed(1)/fixed(2) * shipAxis * physicsState->size.x);
+            physicsState->momentum -= fixed(10) * shipAxis;
             break;
         case DIRECTION_LEFT:
             physicsState->angularMomentum.z += fixed(100);
-            //physicsState->applyForce(fvec3(0, 0, 1), physicsState->position + physicsState->size.x * shipAxis);
-            //physicsState->applyForce(fvec3(0, 0, 100), base + fixed(1)/fixed(2) * orthAxis * physicsState->size.y);
             break;
         case DIRECTION_RIGHT:
             physicsState->angularMomentum.z += -fixed(100);
-            //physicsState->applyForce(fvec3(0, 0, 100), base - fixed(1)/fixed(2) * orthAxis * physicsState->size.y);
             break;
     }
 }

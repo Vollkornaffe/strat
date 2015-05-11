@@ -21,7 +21,7 @@ void main()
 
     // Retrieves diffuse, specular emissive, and ambient color from the OpenGL state.
     diffuseColor = vec3(gl_Color); //vec3(gl_FrontMaterial.diffuse);
-    specularColor = vec3(gl_FrontMaterial.specular);
+    specularColor = vec3(0.6, 0.6, 0.8); //vec3(gl_FrontMaterial.specular);
     emissiveColor = vec3(gl_FrontMaterial.emission);
     ambientColor = vec3(1.0, 1.0, 1.0); vec3(gl_FrontMaterial.ambient);
     shininess = gl_FrontMaterial.shininess;

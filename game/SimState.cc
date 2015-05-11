@@ -28,13 +28,14 @@ SimState::SimState(const GameSettings &settings)
     }
     for (int i = 0; i < 10; i++)
         water.tick(fixed(1)/fixed(10));*/
-    size_t x1 = 120, y1 = 120; 
+
+    /*size_t x1 = 120, y1 = 120; 
     for (size_t x = x1; x <= x1 + 16; x++) {
         for (size_t y = y1; y <= y1 + 16; y++) {
             fixed distance = sqrt(fixed(((x-128)*(x-128) + (y-128)*(y-128))));
             water.splash(Map::Pos(x, y), fixed(1) / (1 + distance) * fixed(100));
         }
-    }
+    }*/
 }
 
 bool SimState::isOrderValid(const Order &order) const {
@@ -63,9 +64,9 @@ void SimState::runOrder(const Order &order) {
                 for (size_t y = y1; y <= y1 + 10 && y < map.getSizeY(); y++)
                         water.splash(Map::Pos(x, y), 50);*/
 
-            for (size_t y = 0; y < 10; y++)
+            /*for (size_t y = 0; y < 10; y++)
                 for (size_t x = 0; x < map.getSizeX(); x++)
-                    water.splash(Map::Pos(x, y), fixed(1));
+                    water.splash(Map::Pos(x, y), fixed(1));*/
 
             break;
         }
