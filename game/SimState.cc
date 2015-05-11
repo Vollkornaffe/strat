@@ -112,7 +112,7 @@ entityx::Entity SimState::addShip(PlayerId owner, const fvec2 &position) {
     entityx::Entity entity = entities.create();
     entity.assign<GameObject>(owner, ++entityCounter);
     entity.assign<PreviousPhysicsState>();
-    entity.assign<PhysicsState>(fvec3(3, 1, 1), fixed(100), fixed(500), fvec3(position, fixed(100)));
+    entity.assign<PhysicsState>(fvec3(3, 1, 1), fixed(100), fixed(1000), fvec3(position, fixed(100)));
     entity.assign<Ship>();
 
     return entity;

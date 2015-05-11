@@ -59,7 +59,7 @@ Input::Input(const Config &config, GLFWwindow *window, Client &client,
     const GridPoint &gp(map.point(view.target.x, view.target.y));
     view.target.z = gp.height + sim.getState().getWater().point(view.target.x, view.target.y).height.toFloat();
 
-    vec3 origin_camera(0, -40.0f, view.distance);
+    vec3 origin_camera(0, -3.0f, view.distance);
     view.position = view.target + rotateZ(origin_camera, view.angle);
 
     assert(!g_input);
@@ -105,10 +105,10 @@ void Input::update(double dt) {
 
     // Zoom in and out
     if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS
-        && view.distance > 3.0f) {
+        && view.distance > 2.0f) {
         view.distance -= dt * 35.0f;
-        if (view.distance < 3.0f)
-            view.distance = 3.0f;
+        if (view.distance < 2.0f)
+            view.distance = 2.0f;
     }
     if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS) {
         view.distance += dt * 35.0f;
@@ -135,7 +135,7 @@ void Input::update(double dt) {
     view.target = fixedToFloat(interpPlayerPhysicsState.position);
     //scrollView(dt);
 
-    vec3 origin_camera(0, -5.0f, view.distance);
+    vec3 origin_camera(0, -3.0f, view.distance);
     view.position = view.target + rotateZ(origin_camera, view.angle);
     
     // Calculate projection and camera matrices
