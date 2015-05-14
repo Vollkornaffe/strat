@@ -2,7 +2,7 @@
 #define STRAT_GAME_WATER_HH
 
 #include "Map.hh"
-#include "Fixed.hh"
+#include "util/Fixed.hh"
 
 #include <cassert>
 #include <vector>

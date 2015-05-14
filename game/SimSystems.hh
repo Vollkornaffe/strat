@@ -2,7 +2,7 @@
 #define STRAT_GAME_SIM_SYSTEMS_HH
 
 #include "SimComponents.hh"
-#include "Fixed.hh"
+#include "util/Fixed.hh"
 #include "common/Order.hh"
 
 #include <entityx/entityx.h>

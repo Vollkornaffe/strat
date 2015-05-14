@@ -4,7 +4,7 @@
 #include "Map.hh"
 #include "Water.hh"
 #include "SimSystems.hh"
-#include "Fixed.hh"
+#include "util/Fixed.hh"
 #include "common/GameSettings.hh"
 #include "common/Order.hh"
 

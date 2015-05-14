@@ -2,7 +2,7 @@
 #define STRAT_GAME_SIM_COMPONENTS_HH
 
 #include "Map.hh"
-#include "Fixed.hh"
+#include "util/Fixed.hh"
 #include "common/Defs.hh"
 
 #include <entityx/entityx.h>

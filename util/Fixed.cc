@@ -1,4 +1,4 @@
-#include "game/Fixed.hh"
+#include "util/Fixed.hh"
 
 fixed sqrt(fixed s) {
     if (s == fixed(0))

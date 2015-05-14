@@ -1,7 +1,7 @@
 #ifndef STRAT_GAME_MAP_HH
 #define STRAT_GAME_MAP_HH
 
-#include "Fixed.hh"
+#include "util/Fixed.hh"
 
 #include <entityx/entityx.h>
 #include <glm/glm.hpp>
