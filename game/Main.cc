@@ -73,15 +73,15 @@ int main(int argc, char *argv[]) {
     const Water &water(simState.getWater());
     const InterpState &interp(client.getInterp());
 
-    opengl::TextureManager textures;
-    opengl::ProgramManager programs;
-    TerrainMesh terrainMesh(map, water, Map::Pos(32, 32), programs);
-
-    Input input(config, window, client, sim.getEvents(), terrainMesh);
+    Input input(config, window, client, sim.getEvents());
     const Input::View &view(input.getView());
 
-    RenderShipSystem renderShipSystem(map, input, textures);
-    DebugRenderPhysicsStateSystem debugRenderPhysicsStateSystem;
+    opengl::TextureManager textures;
+    opengl::ProgramManager programs;
+
+    Graphics graphics(config, input, textures, programs);
+    graphics.load();
+    graphics.initTerrain(map, water);
 
     size_t frames = 0, fps = 0;
     double lastFrameTime = glfwGetTime();
@@ -104,43 +104,21 @@ int main(int argc, char *argv[]) {
                 client.update(dt);
             }
             {
-                PROFILE(terrain);
-                terrainMesh.update();
-            }
-            {
                 PROFILE(input);
                 input.update(dt);
             }
+
+            graphics.update();
         }
 
         {
-            PROFILE(draw);
+            PROFILE(render);
 
-            {
-                PROFILE(setup);
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-                glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-                setupGraphics(config, view);
-            }
-
-            {
-                PROFILE(terrain);
-                terrainMesh.draw();
-            }
-
-            {
-                PROFILE(water);
-                terrainMesh.drawWater(interp);
-            }
-        
-            {
-                PROFILE(objects);
-                renderShipSystem.render(sim.getEntities(), interp);
-
-                //debugRenderPhysicsStateSystem.render(sim.getEntities(), interp);
-            }
+            graphics.setup(view);
+            graphics.render(sim.getEntities(), interp);
 
             {
                 PROFILE(swap);

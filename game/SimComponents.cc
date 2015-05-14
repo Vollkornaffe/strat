@@ -1,5 +1,5 @@
 #include "game/SimComponents.hh"
-#include "game/Math.hh"
+#include "util/Math.hh"
 
 void PhysicsState::recalculate() {
     velocity = momentum / mass;

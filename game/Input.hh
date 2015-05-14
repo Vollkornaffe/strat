@@ -1,7 +1,7 @@
 #ifndef STRAT_GAME_INPUT_HH
 #define STRAT_GAME_INPUT_HH
 
-#include "Math.hh"
+#include "util/Math.hh"
 #include "Map.hh"
 #include "common/Defs.hh"
 
@@ -42,8 +42,7 @@ struct Input {
         View();
     };
 
-    Input(const Config &, GLFWwindow *, Client &, entityx::EventManager &,
-          const TerrainMesh &);
+    Input(const Config &, GLFWwindow *, Client &, entityx::EventManager &);
     ~Input();
 
     const View &getView() const;
@@ -57,7 +56,6 @@ private:
 
     Client &client;
     Sim &sim;
-    const TerrainMesh &terrain;
     const Map &map;
 
     Mode mode;

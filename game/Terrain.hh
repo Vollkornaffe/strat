@@ -1,7 +1,7 @@
 #ifndef STRAT_GAME_TERRAIN_HH
 #define STRAT_GAME_TERRAIN_HH
 
-#include "Math.hh"
+#include "util/Math.hh"
 #include "Map.hh"
 #include "Water.hh"
 #include "opengl/ProgramManager.hh"

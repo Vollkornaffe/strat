@@ -46,10 +46,10 @@ static Ray calculateViewRay(double mx, double my, int width, int height,
 }
 
 Input::Input(const Config &config, GLFWwindow *window, Client &client,
-             entityx::EventManager &events, const TerrainMesh &terrain)
+             entityx::EventManager &events)
     : config(config), window(window),
       client(client), sim(client.getSim()),
-      terrain(terrain), map(sim.getState().getMap()),
+      map(sim.getState().getMap()),
       mode(DefaultMode()),
       scrollSpeed(5.0f) {
     /*view.target.x = map.getSizeX() / 2;

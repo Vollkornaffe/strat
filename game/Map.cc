@@ -1,6 +1,6 @@
 #include "Map.hh"
 
-#include "Math.hh"
+#include "util/Math.hh"
 
 #include <cstdlib>
 

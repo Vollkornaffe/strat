@@ -1,6 +1,6 @@
 #include "Terrain.hh"
 
-#include "Math.hh"
+#include "util/Math.hh"
 #include "InterpState.hh"
 #include "util/Profiling.hh"
 
@@ -282,8 +282,6 @@ void TerrainPatch::drawWater(const InterpState &interp) {
 }
 
 glm::vec3 TerrainPatch::color(size_t height) const {
-    float t = (float)height / map.getMaxHeight(); 
-    //float b = 0.3 + t / 3;
     return glm::vec3(205.0f / 255, 133.0f / 255, 63.0f / 255);
 }
 
