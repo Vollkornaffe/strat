@@ -14,7 +14,7 @@ SRCS_OPENGL=opengl/Buffer.cc opengl/Error.cc opengl/Framebuffer.cc opengl/OBJ.cc
 
 SRCS_UTIL=util/Log.cc util/Print.cc util/Profiling.cc
 
-SRCS_GAME=game/Client.cc game/Graphics.cc game/Main.cc game/Map.cc game/Math.cc game/Sim.cc game/SimState.cc game/SimSystems.cc game/InterpState.cc game/Input.cc game/Terrain.cc game/SimComponents.cc game/Water.cc game/SimComponents.cc $(SRCS_OPENGL) $(SRCS_UTIL)
+SRCS_GAME=game/Client.cc game/Graphics.cc game/Main.cc game/Map.cc game/Math.cc game/Sim.cc game/SimState.cc game/SimSystems.cc game/InterpState.cc game/Input.cc game/Terrain.cc game/SimComponents.cc game/Water.cc game/Fixed.cc $(SRCS_OPENGL) $(SRCS_UTIL)
 OBJS_GAME=$(subst .cc,.o,$(SRCS_GAME))
 
 SRCS_SERVER=server/Server.cc
