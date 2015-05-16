@@ -12,8 +12,9 @@ namespace opengl {
 
 struct Framebuffer {
     enum Config {
-        COLOR = 1,
-        DEPTH = 2
+        COLOR_TEXTURE = 1,
+        //DEPTH = 2
+        DEPTH_TEXTURE = 4
     };
 
     enum Clear : bool {
@@ -39,6 +40,7 @@ private:
     GLuint depthName;
 
     std::unique_ptr<Texture> colorTexture;
+    std::unique_ptr<Texture> depthTexture;
 
     void renderIntoImpl(std::function<void()> const&, Clear) const;
 };

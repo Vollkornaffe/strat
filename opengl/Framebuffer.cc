@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
 
 #include "opengl/Framebuffer.hh"
 
@@ -14,15 +15,11 @@ Framebuffer::Framebuffer(Config config, ivec2 size)
       size(size),
       name(0),
       depthName(0),
-      colorTexture(config & COLOR ? new Texture() : nullptr) {
-    assert(config & COLOR || config & DEPTH);
+      depthTexture(config & DEPTH_TEXTURE ? new Texture : nullptr) {
+    glGenFramebuffers(1, &name);
+    glBindFramebuffer(GL_FRAMEBUFFER, name);
 
-    // There's some big names in here, so be careful!
-
-    glGenFramebuffersEXT(1, &name); 
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, name);
-
-    if (colorTexture) {
+    if (config & COLOR_TEXTURE) {
         glBindTexture(GL_TEXTURE_2D, colorTexture->getName());
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y,
@@ -34,13 +31,39 @@ Framebuffer::Framebuffer(Config config, ivec2 size)
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                  GL_COLOR_ATTACHMENT0_EXT,
-                                  GL_TEXTURE_2D,
-                                  colorTexture->getName(),
-                                  0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+                               GL_TEXTURE_2D, colorTexture->getName(), 0);
     }
 
+    if (config & DEPTH_TEXTURE) {
+        glBindTexture(GL_TEXTURE_2D, depthTexture->getName());
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,
+                     size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT,
+                     nullptr);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); 
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                               GL_TEXTURE_2D, depthTexture->getName(), 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+    }
+
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+        std::stringstream ss;
+        ss << status;
+        throw std::runtime_error("Failed to create framebuffer:" + ss.str());
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    /*
     if (config & DEPTH) {
         glGenRenderbuffersEXT(1, &depthName);
         glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthName);
@@ -59,12 +82,7 @@ Framebuffer::Framebuffer(Config config, ivec2 size)
                                      GL_RENDERBUFFER_EXT,
                                      depthName);
     }
-
-    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-        throw std::runtime_error("Failed to create framebuffer");
-
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    */
 }
 
 Framebuffer::~Framebuffer() {
@@ -81,14 +99,14 @@ Texture const& Framebuffer::getColorTexture() const {
 
 void Framebuffer::renderIntoImpl(std::function<void()> const& f,
                                  Framebuffer::Clear clear) const {
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, name);
+    glBindFramebuffer(GL_FRAMEBUFFER, name);
     glPushAttrib(GL_VIEWPORT_BIT);
     glViewport(0, 0, size.x, size.y);
 
     if (clear) {
         GLuint clearFlags = 0;
-        if (config & COLOR) clearFlags |= GL_COLOR_BUFFER_BIT;
-        if (config & DEPTH) clearFlags |= GL_DEPTH_BUFFER_BIT;
+        //if (config & COLOR) clearFlags |= GL_COLOR_BUFFER_BIT;
+        if (config & DEPTH_TEXTURE) clearFlags |= GL_DEPTH_BUFFER_BIT;
 
         glClear(clearFlags);
     }
@@ -96,7 +114,7 @@ void Framebuffer::renderIntoImpl(std::function<void()> const& f,
     f();
 
     glPopAttrib();
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 } // namespace game

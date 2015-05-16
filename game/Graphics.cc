@@ -9,6 +9,7 @@
 #include <GL/glu.h>
 #include <inline_variant_visitor/inline_variant.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/quaternion.hpp>
@@ -146,10 +147,33 @@ Graphics::Graphics(const Config &config,
 void Graphics::load() {
     renderShipSystem.load();
     debugRenderPhysicsStateSystem.load();
+
+    shadowMapProgram = programs.load("shaders/shadowmap-vertex.glsl", "shaders/shadowmap-pixel.glsl");
+    shadowMap.reset(new opengl::Framebuffer(opengl::Framebuffer::DEPTH_TEXTURE, ivec2(1024, 1024)));
 }
 
 void Graphics::initTerrain(const Map &map, const Water &water) {
     terrain.reset(new TerrainMesh(map, water, Map::Pos(32,32), programs));
+}
+
+void Graphics::renderShadowMap(entityx::EntityManager &entities,
+                               const InterpState &interp) {
+    PROFILE(renderShadowMap);
+
+    vec3 lightInvDir(0.5f, 2.0f, 2.0f);
+
+    mat4 projection(ortho<float>(-10,10,-10,10,-10,20)),
+         view(lookAt(lightInvDir, vec3(0,0,0), vec3(0,1,0)));
+
+    shadowMap->renderInto([&] {
+        shadowMapProgram->bind();
+        shadowMapProgram->setUniform(shadowMapProgram->getUniformLocation("depthMVP"), projection * view);
+
+        renderShipSystem.render(entities, interp);
+        debugRenderPhysicsStateSystem.render(entities, interp);
+
+        shadowMapProgram->unbind();
+    }, opengl::Framebuffer::CLEAR);
 }
 
 void Graphics::setup(const Input::View &view) {
@@ -215,6 +239,23 @@ void Graphics::render(entityx::EntityManager &entities,
         renderShipSystem.render(entities, interp);
         debugRenderPhysicsStateSystem.render(entities, interp);
     }
+}
+
+void Graphics::debugRender() {
+    mat4 projection(ortho<float>(0, config.screenWidth, config.screenHeight, 0));
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMultMatrixf(glm::value_ptr(projection));
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glBegin(GL_LINES);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex2f(0.0f, 0.0f);
+    glVertex2f(config.screenWidth, config.screenHeight);
+    glEnd();
 }
 
 void Graphics::update() {

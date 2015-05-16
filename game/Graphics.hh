@@ -7,12 +7,13 @@
 #include "Map.hh"
 #include "Input.hh"
 
-#include <entityx/entityx.h>
-#include <GL/glew.h>
-
 #include "opengl/OBJ.hh"
 #include "opengl/TextureManager.hh"
 #include "opengl/ProgramManager.hh"
+#include "opengl/Framebuffer.hh"
+
+#include <entityx/entityx.h>
+#include <GL/glew.h>
 
 struct Map;
 struct InterpState;
@@ -52,8 +53,12 @@ struct Graphics {
     void load();
     void initTerrain(const Map &, const Water &);
 
+    void renderShadowMap(entityx::EntityManager &entities, const InterpState &interp);
+
     void setup(const Input::View &);
     void render(entityx::EntityManager &entities, const InterpState &);
+
+    void debugRender();
 
     void update();
 
@@ -68,6 +73,9 @@ private:
     DebugRenderPhysicsStateSystem debugRenderPhysicsStateSystem;
 
     std::unique_ptr<TerrainMesh> terrain;
+
+    opengl::Program *shadowMapProgram;
+    std::unique_ptr<opengl::Framebuffer> shadowMap;
 };
 
 
